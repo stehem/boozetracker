@@ -3,18 +3,15 @@
             [boozetracker.views.common :as common]
             [noir.response :as response]
             [noir.validation :as vali]
-            [noir.session :as session])
+            [noir.session :as session]
+            [boozetracker.db :as db]
+            [boozetracker.models.session :as Session]
+            [boozetracker.models.user :as User])
   (:use [noir.core]
         [somnium.congomongo]
         [hiccup.form-helpers]
         [hiccup.page-helpers]
         [hiccup.core]))
-
-
-(def conn
-  (make-connection "beertabs"
-                   :host "127.0.0.1"
-                   :port 27017))
 
 
 (defmacro defpage-w-auth 
@@ -25,22 +22,13 @@
       (response/redirect "/session/new")) ))
 
 
-(defn valid? [{:keys [date type cost username password]}]
-  (vali/rule (vali/has-value? date)
-             [:date "Need a date to remember this one"])
-  (vali/rule (vali/has-value? type)
-             [:type "Need to know how to remember this"])
-  (vali/rule (vali/has-value? cost)
-             [:cost "Need to know how painful this was"])
-  (not (vali/errors? :date :type :cost)))
-
 
 (defpartial error-item [[first-error]]
-  [:p.error first-error])
+  [:div.error first-error])
 
 
 
-(defpage "/tabs" {:as tab}
+(defpage-w-auth "/tabs" {:as tab}
   (html
     (common/layout-w-auth
     [:div#cost-form 
@@ -74,19 +62,12 @@
 
 
 
-; put auth back on
-;(defpage "/tabs" [tab]
-  ;(common/layout-w-auth 
-    ;(cost-form tab)
-    
-    ;)
-;)
 
 
 ;put auth back on
 (defpage [:post, "/costs"] {:as tab}
-  (with-mongo conn
-    (if (valid? tab)
+  (with-mongo db/conn
+    (if (= 1 1)
       (let [user-id (str (session/get :user-id)) user (fetch-by-id "users" (object-id user-id))]
         (if (and user-id user)
           (do
@@ -103,44 +84,58 @@
 
 
 
-(defpage "/user/new" []
+(defpage "/user/new" {:as user}
   (html
     (form-to [:post "/users"]
-      (label "username" "Username")
-      (text-field "username")
-      (label "password" "password")
-      (password-field "password")
+      [:div#user-form-username
+        (vali/on-error :username error-item)
+        (label "username" "Username")
+        (text-field "username" (:username user))]
+      [:div#user-form-password
+        (vali/on-error :password error-item)
+        (label "password" "password")
+        (password-field "password")]
       (submit-button "Register")  )))
 
 
-(defpage [:post "/users"] {:keys [username password]}
-  (with-mongo conn
-    (if (nil? (fetch-one :users :where {:username username}))
-      (do 
-        (insert! :users {:username username :password (crypt/encrypt password)})
+
+
+
+(defpage [:post "/users"] {:as user}
+  (if (User/valid? user)
+    (with-mongo db/conn
+      (do
+        (insert! :users {:username (:username user) :password (crypt/encrypt (:password user))}))
         "success")
-      "already exists") ))
+      (render "/user/new" user) ) )
 
 
-(defpage "/session/new" []
+(defpage "/session/new" {:as user}
   (html
     (form-to [:post "/sessions"]
-      (label "username" "Username")
-      (text-field "username")
-      (label "password" "password")
-      (password-field "password")
-      (submit-button "Login")  )))
+      [:div#session-form-username
+        (label "username" "Username")
+        (text-field "username" (:username user))]
+      [:div#session-form-username
+        (label "password" "password")
+        (password-field "password")]
+      (submit-button "Login")  
+      (for [attr [:username :password]] (vali/on-error attr error-item))  )))
 
 
-(defpage [:post "/sessions"] {:keys [username password]}
-  (with-mongo conn
-    (let [user (fetch-one :users :where {:username username})
+(defpage [:post "/sessions"] {:as session}
+  (if (Session/valid? session)
+  (with-mongo db/conn
+    (let [user (fetch-one :users :where {:username (:username session)})
       {id :_id login :username pw :password} user]
-      (if (and user (crypt/compare password pw))
         (do
           (session/put! :user-id id)
           (session/put! :user-name login)
           (response/redirect "/tabs") )
-        "fail") )))
+      ) )
+    
+    (render "/session/new" session)
+    )
+)
 
      ;(str (fetch-by-id "users" (object-id "504487fc65d110d68de92a16"))) 
