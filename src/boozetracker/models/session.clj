@@ -5,7 +5,7 @@
   (:use [somnium.congomongo]))
 
 
-(defn authenticate-user
+(defn authenticate?
   [username password]
   (with-mongo db/conn
     (let [user (fetch-one :users :where {:username username}) pw (:password user)]
@@ -19,7 +19,7 @@
     [:password "Password required"])
   (if (vali/has-value? password) 
     (if (vali/has-value? username)
-      (vali/rule (authenticate-user username password)
+      (vali/rule (authenticate? username password)
         [:password "Authentication failed"])))
   (not (vali/errors? :username :password)))
 

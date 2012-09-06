@@ -1,5 +1,6 @@
 (ns boozetracker.views.common
-  (:require [noir.session :as session])
+  (:require [boozetracker.models.user :as User]
+            [noir.session :as session])
   (:use [noir.core]
         [hiccup.page-helpers]))
 
@@ -23,6 +24,12 @@
       (include-css "/css/reset.css")]
       (include-css "//ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery.ui.all.css")
     [:body
-      [:div#username (str (session/get :user-name))]
+      (if (User/logged-in?) (link-to "/session/delete" "signout"))
+      [:div#username (:username (User/current-user))]
       [:div#wrapper
         content]]))
+
+
+(defpartial error-item [[first-error]]
+  [:div.error first-error])
+

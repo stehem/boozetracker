@@ -1,11 +1,14 @@
 (ns boozetracker.test.boozetracker
-  (:require [boozetracker.db :as db])
-  (:use boozetracker.views.boozetracker)
-  (:use clojure.test)
-  (:use noir.response)
-  (:use noir.session)
-  (:use somnium.congomongo)
-  (:use noir.util.test2))
+  (:require [boozetracker.db :as db]
+            [boozetracker.models.user :as User])
+  (:use [boozetracker.views.users]
+        [boozetracker.views.sessions]
+        [boozetracker.views.costs]
+        [clojure.test]
+        [noir.response]
+        [noir.session]
+        [somnium.congomongo]
+        [noir.util.test2]))
 
 
 
@@ -34,11 +37,13 @@
         (has-status 200)
         (body-contains #"Username required")
         (!body-contains #"Password required")  )
-      (-> 
-        (send-request [:post "/users"] {"username" "dummy" "password" "dummy"})
-        (has-status 200)
-        (!body-contains #"Username required")
-        (!body-contains #"Password required")  )
+      (let [cnt (fetch-count :users)]
+        (-> 
+          (send-request [:post "/users"] {"username" "dummy" "password" "dummy"})
+          (has-status 200)
+          (is (= (inc cnt) (fetch-count :users)))
+          (!body-contains #"Username required")
+          (!body-contains #"Password required")  )  )
       (-> 
         (send-request [:post "/users"] {"username" "dummy" "password" "dummy"})
         (has-status 200)
@@ -46,14 +51,112 @@
         (!body-contains #"Username required")
         (!body-contains #"Password required")  )  )
               
-      (destroy! "users" {:username "dummy"})  ) )
+      (User/destroy "dummy")  ) )
 
 
 
+(deftest test-new-session
+  (with-mongo db/conn
+    (with-noir
+      (->
+        (send-request "/session/new")
+        (has-status 200)
+        (has-tags [
+          [:input {:type "text" :name "username" :id "username"}]
+          [:input {:type "password" :name "password" :id "password"}]
+          [:form {:action "/sessions"}] ]) )   
+      (-> 
+        (send-request [:post "/sessions"] {"username" nil "password" nil})
+        (has-status 401)
+        (body-contains #"Username required")
+        (body-contains #"Password required")  )
+      (-> 
+        (send-request [:post "/sessions"] {"username" "dummy" "password" nil})
+        (has-status 401)
+        (!body-contains #"Username required")
+        (body-contains #"Password required")  )
+      (-> 
+        (send-request [:post "/sessions"] {"username" nil "password" "dummy"})
+        (has-status 401)
+        (body-contains #"Username required")
+        (!body-contains #"Password required")  )
+      (-> 
+        (send-request [:post "/sessions"] {"username" "dummy" "password" "dummy"})
+        (has-status 401)
+        (body-contains #"Authentication failed")
+        (!body-contains #"Username required")
+        (!body-contains #"Password required")  )
+      (User/create {:username "dummy" :password "dummy"})
+      (-> 
+        (send-request [:post "/sessions"] {"username" "dummy" "password" "dummy"})
+        (has-status 302)
+        (redirects-to "/cost/new") )
+        (User/destroy "dummy")  ) ) ) 
   
   
-  
-  
 
+(deftest test-costs
+  (with-mongo db/conn
+    (with-noir
+      (->
+        (send-request "/cost/new") 
+        (has-status 302)
+        (redirects-to "/session/new") )
+      (binding [User/logged-in? (fn[] true) User/current-user (fn[] {:id_ 1 :username "dummy" :password "dummy"})] 
+        (->
+          (send-request "/cost/new") 
+          (has-status 200)
+          (body-contains #"dummy")
+          (has-tags [
+            [:input {:type "text" :name "date" :id "date"}]
+            [:input {:type "radio" :name "type" :id "type-beer" :value "beer"}]
+            [:input {:type "radio" :name "type" :id "type-liquor" :value "liquor"}]
+            [:input {:type "radio" :name "type" :id "type-wine" :value "wine"}]
+            [:input {:type "radio" :name "type" :id "type-cocktails" :value "cocktails"}]
+            [:input {:type "radio" :name "type" :id "type-everything" :value "everything"}]
+            [:form {:action "/costs"}] ]) )
+        (->
+          (send-request [:post "/costs"]) 
+          (body-contains #"Date required")
+          (body-contains #"Drink required")
+          (body-contains #"Cost required")  )
+        (->
+          (send-request [:post "/costs"] {"date" "01/01/2012"}) 
+          (!body-contains #"Date required")
+          (body-contains #"Drink required")
+          (body-contains #"Cost required")  )
+        (->
+          (send-request [:post "/costs"] {"date" "01/01/2012" "type" "beer"}) 
+          (!body-contains #"Date required")
+          (!body-contains #"Drink required")
+          (body-contains #"Cost required")  )
+        (->
+          (send-request [:post "/costs"] {"type" "beer" "cost" "25"}) 
+          (body-contains #"Date required")
+          (!body-contains #"Drink required")
+          (!body-contains #"Cost required")  )
+        (->
+          (send-request [:post "/costs"] {"type" "beer" "cost" "qwe"}) 
+          (body-contains #"Wrong value") )
+        (->
+          (send-request [:post "/costs"] {"type" "beer" "cost" "123e"}) 
+          (body-contains #"Wrong value") )
+        (->
+          (send-request [:post "/costs"] {"type" "beer" "cost" "123.00"}) 
+          (body-contains #"Wrong value") )
+        (->
+          (send-request [:post "/costs"] {"type" "beer" "cost" "123 "}) 
+          (!body-contains #"Wrong value") )
+        (let [cnt (fetch-count :costs)]
+          (->
+            (send-request [:post "/costs"] {"date" "01/01/2012" "type" "beer" "cost" "25"}) 
+            (has-status 200)
+            (is (= (inc cnt) (fetch-count :costs))) ) )
+      
+      )
+    )
+  )
+)
+ 
 
-
+;(println (binding [User/current-user (fn[] {:id_ 1 :username "dummy" :password "dummy"})] (User/current-user)))
