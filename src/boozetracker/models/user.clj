@@ -15,7 +15,7 @@
 (defn create
   [user]
   (with-mongo db/conn
-    (insert! :users {:username (:username user) :password (crypt/encrypt (:password user))})))
+    (insert! :users {:username (:username user) :password (crypt/encrypt (:password user)) :costs []})))
 
 (defn destroy
   [username]

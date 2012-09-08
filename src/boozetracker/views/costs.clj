@@ -55,7 +55,8 @@
       (let [user (User/current-user)]
         (if user
           (do
-            (insert! "costs" {:user_id (:_id user) :date (:date cost) :cost (:cost cost)})
+            (update! :users {:_id (:_id user)} {:$push {:costs cost}})
+            ;(insert! "costs" {:user_id (:_id user) :date (:date cost) :type (:type cost) :cost (:cost cost)})
             "with great success" )
           "with great failure"  ) )
     (render "/cost/new" cost) ) ) )

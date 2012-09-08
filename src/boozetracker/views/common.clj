@@ -21,6 +21,7 @@
       (include-js "//ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js")
       (include-js "//ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js")
       (include-js "/javascript/app.js")
+      (include-js "https://www.google.com/jsapi")
       (include-css "/css/reset.css")]
       (include-css "//ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery.ui.all.css")
     [:body
