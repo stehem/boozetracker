@@ -1,7 +1,7 @@
 (ns boozetracker.server
   (:require [noir.server :as server]))
 
-(server/load-views "src/boozetracker/views/")
+(server/load-views "src/boozetracker/")
 
 (defn -main [& m]
   (let [mode (keyword (or (first m) :dev))

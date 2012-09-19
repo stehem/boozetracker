@@ -15,52 +15,111 @@
         [hiccup.core]))
 
 
-
-
-
 (defpartial pie-chart []
-  (html
-    [:div#chart
+  "
+    // Create the data table.
+    (function (){
+      var data = new google.visualization.DataTable();
+      data.addColumn('string', 'booze');
+      data.addColumn('number', 'cost');
+      data.addRows("
+        (Stat/format-chart (Stat/pie-chart))
+      ");
+
+      // Set chart options
+      var options = {'title':'Spending by drink',
+      'width':400,
+      'height':300};
+
+      // Instantiate and draw our chart, passing in some options.
+      var chart = new google.visualization.PieChart(document.getElementById('pie-chart'));
+      chart.draw(data, options);
+    })();
+  "
+)
+
+
+(defpartial days-chart []
+  "
+    // Create the data table.
+    (function (){
+      var data = new google.visualization.DataTable();
+      data.addColumn('string', 'days');
+      data.addColumn('number', 'cost');
+      data.addRows("
+        (Stat/format-chart (Stat/days-chart))
+      ");
+
+      // Set chart options
+      var options = {'title':'Spending by day',
+      'width':400,
+      'height':300};
+
+      // Instantiate and draw our chart, passing in some options.
+      var chart = new google.visualization.PieChart(document.getElementById('days-chart'));
+      chart.draw(data, options);
+    })();
+  "
+)
+
+
+(defpartial month-chart []
+  "
+    // Create the data table.
+    (function (){
+      var data = new google.visualization.DataTable();
+      data.addColumn('string', 'month');
+      data.addColumn('number', 'cost');
+      data.addRows("
+        (Stat/format-chart (Stat/sorted-spend-month))
+      ");
+
+      // Set chart options
+      var options = {'title':'Spending by month',
+      'width':400,
+      'height':300};
+
+      // Instantiate and draw our chart, passing in some options.
+      var chart = new google.visualization.LineChart(document.getElementById('month-chart'));
+      chart.draw(data, options);
+    })();
+  "
+)
+
+
+(defpartial google-charts-setup []
     "
-      <script type='text/javascript'>
+     // Load the Visualization API and the piechart package.
       google.load('visualization', '1.0', {'packages':['corechart']});
+
+      // Set a callback to run when the Google Visualization API is loaded.
       google.setOnLoadCallback(drawChart);
 
+      // Callback that creates and populates a data table,
+      // instantiates the pie chart, passes in the data and
+      // draws it.
       function drawChart() {
-
-        // Create the data table.
-        var data = new google.visualization.DataTable();
-        data.addColumn('string', 'Topping');
-        data.addColumn('number', 'Slices');
-        data.addRows("
-        (Stat/format-pie-chart(Stat/pie-chart))
-        ");
-
-        // Set chart options
-        var options = {'title':'Spending by booze type',
-                       'width':400,
-                       'height':300};
-
-        // Instantiate and draw our chart, passing in some options.
-        var chart = new google.visualization.PieChart(document.getElementById('pie'));
-        chart.draw(data, options);
+      "
+        (pie-chart)
+        (days-chart)
+        (month-chart)
+      "
       }
-      </script>
     "
-    [:div#pie]
-     ]
-    
-    
-    
-    )
-            )
+)
 
 
 
 (defpage-w-auth "/stats" []
   (html
     (common/layout-w-auth 
-
-      (do (prn (Stat/format-pie-chart (Stat/pie-chart)))
-        (pie-chart)))))
+      (do (println (Stat/sorted-spend-month))
+      [:div#stats
+        [:script (google-charts-setup)]
+        [:div#pie-chart.chart]
+        [:div#days-chart.chart]
+        [:div#month-chart.chart]
+      ]
+      )
+)))
 

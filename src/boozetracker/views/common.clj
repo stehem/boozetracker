@@ -22,8 +22,10 @@
       (include-js "//ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js")
       (include-js "/javascript/app.js")
       (include-js "https://www.google.com/jsapi")
-      (include-css "/css/reset.css")]
+      (include-css "//netdna.bootstrapcdn.com/twitter-bootstrap/2.1.1/css/bootstrap-combined.min.css")
       (include-css "//ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery.ui.all.css")
+      (include-css "/css/reset.css")
+      (include-css "/css/app.css")]
     [:body
       (if (User/logged-in?) (link-to "/session/delete" "signout"))
       [:div#username (:username (User/current-user))]
