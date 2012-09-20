@@ -18,7 +18,7 @@
 (defn grouped-by
   [f]
   (let [grouped f] 
-    (for [[type costs] grouped] (into [] [type (reduce + (map #(Integer/parseInt (:cost %)) costs))]))))
+    (for [[type costs] grouped] (into [] [type (reduce + (map #(Float/parseFloat (:cost %)) costs))]))))
 
 
 (def custom-formatter (formatter "dd-MM-YYYY"))
@@ -52,7 +52,7 @@
 
 (defn total-spend
   []
-  (reduce + (reduce (fn[xs x] (conj xs (Integer/parseInt (:cost x)))) [] (for-current-user))))
+  (reduce + (reduce (fn[xs x] (conj xs (Float/parseFloat (:cost x)))) [] (for-current-user))))
 
 
 (defn format-chart
@@ -60,10 +60,6 @@
   (format "[%s]" (clojure.string/join ", " (map (fn[p] (format "['%s', %s]" (first p) (second p))) pie))))
     
                        
-; TODO number of units glasses, pints
-
-
-
 
 (defn spend-month
   []
@@ -74,7 +70,8 @@
 
 (defn sorted-spend-month
   []
-  (sort-by last (map #(conj % (to-long (parse custom-formatter-r (first %)))) (spend-month))))
+  (map #(into [] (butlast %))
+  (sort-by last (map #(conj % (to-long (parse custom-formatter-r (first %)))) (spend-month))))  )
   
   
 (defn spend-day
@@ -84,17 +81,18 @@
 
 (defn avg-spend-month
   []
-  (/ (total-spend) (count (spend-month))))
+  (int (/ (total-spend) (count (spend-month)))) )
 
 
 (defn avg-spend-session
   []
-  (/ (total-spend) (count (spend-day))))
+  (int (/ (total-spend) (count (spend-day)))) )
 
 
 (defn sorted-spend-day
   []
-  (sort-by last (map #(conj % (to-long (to-cljdate (first %)))) (spend-day))) )
+  (map #(into [] (butlast %))
+  (sort-by last (map #(conj % (to-long (to-cljdate (first %)))) (spend-day))) ))
 
 
 (defn min-date
@@ -111,5 +109,30 @@
   []
   (let [days (in-days (interval (min-date) (max-date))) spend (total-spend)]
     (int (/ spend days))  ))
+
+
+(defn total-drinks
+  []
+  (reduce + (map #(Integer/parseInt (:unit %)) (for-current-user))))
+
+
+(defn avg-drinks-nb
+  []
+  (int (/ (total-drinks) (count (for-current-user)))) )
+
+
+(defn avg-drinks-price
+  []
+  (int (/ (total-spend) (total-drinks))) )
+
+
+(defn avg-drinks-price-session
+  []
+  (map 
+    (fn[s] [(:date s) (/ (Float/parseFloat (:cost s)) (Integer/parseInt (:unit s)))]) 
+    (for-current-user)))
+
+
+;TODO gauge alcoholism level 
 
 

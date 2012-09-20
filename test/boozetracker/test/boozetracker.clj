@@ -155,65 +155,116 @@
           (!body-contains #"Cost required")  )
         (->
           (send-request [:post "/costs"] {"type" "beer" "cost" "qwe"}) 
+          (body-contains #"Date required")
+          (body-contains #"Number of drinks required")
           (body-contains #"Wrong value") )
         (->
           (send-request [:post "/costs"] {"type" "beer" "cost" "123e"}) 
+          (body-contains #"Date required")
+          (body-contains #"Number of drinks required")
           (body-contains #"Wrong value") )
         (->
           (send-request [:post "/costs"] {"type" "beer" "cost" "123.00"}) 
+          (body-contains #"Date required")
+          (body-contains #"Number of drinks required")
+          (!body-contains #"Wrong value") )
+        (->
+          (send-request [:post "/costs"] {"date" "01-01-2012" "type" "beer" "cost" "123 "}) 
+          (body-contains #"Number of drinks required")
+          (!body-contains #"Wrong value") )
+        (->
+          (send-request [:post "/costs"] {"date" "01-01-2012" "type" "beer" "cost" "123" "unit" "3"}) 
+          (!body-contains #"Wrong value") )
+        (->
+          (send-request [:post "/costs"] {"date" "01-01-2012" "type" "beer" "cost" "123" "unit" "3q"}) 
           (body-contains #"Wrong value") )
         (->
-          (send-request [:post "/costs"] {"type" "beer" "cost" "123 "}) 
+          (send-request [:post "/costs"] {"date" "01-01-2012" "type" "beer" "cost" "6.5"}) 
+          (body-contains #"Number of drinks required")
           (!body-contains #"Wrong value") )
+
+        (drop-coll! :users)
         (insert! :users mock-user)
         (let [user1 (fetch-one :users :where {:_id (:_id mock-user)})]
           (is (= 0 (count (:costs user1))))
-          (send-request [:post "/costs"] {"date" "01/01/2012" "type" "beer" "cost" "123"}) 
+          (send-request [:post "/costs"] {"date" "01/01/2012" "type" "beer" "cost" "123" "unit" "2"}) 
           (let [user2 (fetch-one :users :where {:_id (:_id mock-user)})]
             (is (= 1 (count (:costs user2))))
-            (send-request [:post "/costs"] {"date" "01/02/2012" "type" "wine" "cost" "234"}) 
+            (send-request [:post "/costs"] {"date" "01/02/2012" "type" "wine" "cost" "234" "unit" "2"}) 
             (let [user3 (fetch-one :users :where {:_id (:_id mock-user)})]
               (is (= 2 (count (:costs user3)))))))  ))
  
 
 (deftest-w-mock test-pie-chart
-      (send-request [:post "/costs"] {"date" "01/01/2012" "type" "beer" "cost" "10"}) 
-      (send-request [:post "/costs"] {"date" "01/03/2012" "type" "wine" "cost" "20"}) 
-      (is (= "[['beer', 10], ['wine', 20]]" (Stat/format-chart (Stat/pie-chart))))
-      (send-request [:post "/costs"] {"date" "01/02/2012" "type" "beer" "cost" "10"}) 
-      (send-request [:post "/costs"] {"date" "01/03/2012" "type" "liquor" "cost" "30"}) 
-      (is (= "[['beer', 20], ['wine', 20], ['liquor', 30]]" (Stat/format-chart (Stat/pie-chart))))  )
+      (send-request [:post "/costs"] {"date" "01/01/2012" "type" "beer" "cost" "10" "unit" "2"}) 
+      (send-request [:post "/costs"] {"date" "01/03/2012" "type" "wine" "cost" "20" "unit" "2"}) 
+      (is (= "[['beer', 10.0], ['wine', 20.0]]" (Stat/format-chart (Stat/pie-chart))))
+      (send-request [:post "/costs"] {"date" "01/02/2012" "type" "beer" "cost" "10" "unit" "2"}) 
+      (send-request [:post "/costs"] {"date" "01/03/2012" "type" "liquor" "cost" "30" "unit" "2"}) 
+      (is (= "[['beer', 20.0], ['wine', 20.0], ['liquor', 30.0]]" (Stat/format-chart (Stat/pie-chart))))  )
 
 
 (deftest-w-mock test-days-chart
-      (send-request [:post "/costs"] {"date" "01-09-2012" "type" "beer" "cost" "10"}) 
-      (send-request [:post "/costs"] {"date" "14-09-2012" "type" "wine" "cost" "20"}) 
-      (send-request [:post "/costs"] {"date" "15-09-2012" "type" "wine" "cost" "5"}) 
-      (send-request [:post "/costs"] {"date" "20-09-2012" "type" "beer" "cost" "10"}) 
-      (send-request [:post "/costs"] {"date" "25-09-2012" "type" "liquor" "cost" "30"}) 
-      (is (= "[['Saturday', 15], ['Friday', 20], ['Thursday', 10], ['Tuesday', 30]]" (Stat/format-chart (Stat/days-chart))))  )
+      (send-request [:post "/costs"] {"date" "01-09-2012" "type" "beer" "cost" "10" "unit" "2"}) 
+      (send-request [:post "/costs"] {"date" "14-09-2012" "type" "wine" "cost" "20" "unit" "2"}) 
+      (send-request [:post "/costs"] {"date" "15-09-2012" "type" "wine" "cost" "5" "unit" "2"}) 
+      (send-request [:post "/costs"] {"date" "20-09-2012" "type" "beer" "cost" "10" "unit" "2"}) 
+      (send-request [:post "/costs"] {"date" "25-09-2012" "type" "liquor" "cost" "30" "unit" "2"}) 
+      (is (= "[['Saturday', 15.0], ['Friday', 20.0], ['Thursday', 10.0], ['Tuesday', 30.0]]" (Stat/format-chart (Stat/days-chart))))  )
 
 
 (deftest-w-mock test-total-spend
-      (send-request [:post "/costs"] {"date" "01-09-2012" "type" "beer" "cost" "10"}) 
-      (send-request [:post "/costs"] {"date" "14-09-2012" "type" "wine" "cost" "20"}) 
-      (send-request [:post "/costs"] {"date" "15-09-2012" "type" "wine" "cost" "5"}) 
-      (send-request [:post "/costs"] {"date" "20-09-2012" "type" "beer" "cost" "10"}) 
-      (send-request [:post "/costs"] {"date" "25-09-2012" "type" "liquor" "cost" "30"}) 
-      (is (= 75 (Stat/total-spend))))
+      (send-request [:post "/costs"] {"date" "01-09-2012" "type" "beer" "cost" "10" "unit" "2"}) 
+      (send-request [:post "/costs"] {"date" "14-09-2012" "type" "wine" "cost" "20" "unit" "2"}) 
+      (send-request [:post "/costs"] {"date" "15-09-2012" "type" "wine" "cost" "5" "unit" "2"}) 
+      (send-request [:post "/costs"] {"date" "20-09-2012" "type" "beer" "cost" "10" "unit" "2"}) 
+      (send-request [:post "/costs"] {"date" "25-09-2012" "type" "liquor" "cost" "30" "unit" "2"}) 
+      (is (= 75.0 (Stat/total-spend))))
 
 
 (deftest-w-mock test-avg-spend-session
-      (send-request [:post "/costs"] {"date" "01-09-2012" "type" "beer" "cost" "8"}) 
-      (send-request [:post "/costs"] {"date" "14-09-2012" "type" "wine" "cost" "9"}) 
-      (send-request [:post "/costs"] {"date" "20-09-2012" "type" "beer" "cost" "11"}) 
-      (send-request [:post "/costs"] {"date" "25-09-2012" "type" "liquor" "cost" "12"}) 
+      (send-request [:post "/costs"] {"date" "01-09-2012" "type" "beer" "cost" "8" "unit" "2"}) 
+      (send-request [:post "/costs"] {"date" "14-09-2012" "type" "wine" "cost" "9" "unit" "2"}) 
+      (send-request [:post "/costs"] {"date" "20-09-2012" "type" "beer" "cost" "11" "unit" "2"}) 
+      (send-request [:post "/costs"] {"date" "25-09-2012" "type" "liquor" "cost" "12" "unit" "2"}) 
       (is (= 10 (Stat/avg-spend-session))))
 
 
 (deftest-w-mock test-avg-spend-day
-      (send-request [:post "/costs"] {"date" "01-09-2012" "type" "beer" "cost" "5"}) 
-      (send-request [:post "/costs"] {"date" "03-09-2012" "type" "wine" "cost" "5"}) 
-      (send-request [:post "/costs"] {"date" "05-09-2012" "type" "beer" "cost" "5"}) 
-      (send-request [:post "/costs"] {"date" "10-09-2012" "type" "liquor" "cost" "5"}) 
+      (send-request [:post "/costs"] {"date" "01-09-2012" "type" "beer" "cost" "5" "unit" "2"}) 
+      (send-request [:post "/costs"] {"date" "03-09-2012" "type" "wine" "cost" "5" "unit" "2"}) 
+      (send-request [:post "/costs"] {"date" "05-09-2012" "type" "beer" "cost" "5" "unit" "2"}) 
+      (send-request [:post "/costs"] {"date" "10-09-2012" "type" "liquor" "cost" "5" "unit" "2"}) 
       (is (= 2 (Stat/avg-spend-day))))
+
+
+(deftest-w-mock test-sorted-spend-day
+      (send-request [:post "/costs"] {"date" "01-09-2012" "type" "beer" "cost" "5" "unit" "2"}) 
+      (send-request [:post "/costs"] {"date" "03-09-2012" "type" "wine" "cost" "5" "unit" "2"}) 
+      (send-request [:post "/costs"] {"date" "05-09-2012" "type" "beer" "cost" "5" "unit" "2"}) 
+      (send-request [:post "/costs"] {"date" "10-09-2012" "type" "liquor" "cost" "5" "unit" "2"}) 
+      (send-request [:post "/costs"] {"date" "01-08-2012" "type" "beer" "cost" "5" "unit" "2"}) 
+      (send-request [:post "/costs"] {"date" "03-08-2012" "type" "wine" "cost" "5" "unit" "2"}) 
+      (is (= '(["01-08-2012" 5.0] ["03-08-2012" 5.0] ["01-09-2012" 5.0]  ["03-09-2012" 5.0] 
+               ["05-09-2012" 5.0] ["10-09-2012" 5.0]) (Stat/sorted-spend-day))))
+
+
+(deftest-w-mock test-sorted-spend-month
+      (send-request [:post "/costs"] {"date" "01-09-2012" "type" "beer" "cost" "5" "unit" "2"}) 
+      (send-request [:post "/costs"] {"date" "03-09-2012" "type" "wine" "cost" "5" "unit" "2"}) 
+      (send-request [:post "/costs"] {"date" "05-09-2012" "type" "beer" "cost" "5" "unit" "2"}) 
+      (send-request [:post "/costs"] {"date" "10-09-2012" "type" "liquor" "cost" "5" "unit" "2"}) 
+      (send-request [:post "/costs"] {"date" "01-08-2012" "type" "beer" "cost" "5" "unit" "2"}) 
+      (send-request [:post "/costs"] {"date" "03-08-2012" "type" "wine" "cost" "5" "unit" "2"}) 
+      (is (= '(["8-2012" 10.0] ["9-2012" 20.0]) (Stat/sorted-spend-month))))
+
+
+(deftest-w-mock test-avg-drinks
+      (send-request [:post "/costs"] {"date" "01-09-2012" "type" "beer" "cost" "2.5" "unit" "1"}) 
+      (send-request [:post "/costs"] {"date" "03-09-2012" "type" "wine" "cost" "5" "unit" "3"}) 
+      (send-request [:post "/costs"] {"date" "05-09-2012" "type" "beer" "cost" "7.5" "unit" "1"}) 
+      (send-request [:post "/costs"] {"date" "10-09-2012" "type" "liquor" "cost" "7.5" "unit" "3"}) 
+      (send-request [:post "/costs"] {"date" "01-08-2012" "type" "beer" "cost" "5" "unit" "1"}) 
+      (send-request [:post "/costs"] {"date" "03-08-2012" "type" "wine" "cost" "2.5" "unit" "3"}) 
+      (is (= 5) (Stat/avg-drinks-price))
+      (is (= 2 (Stat/avg-drinks-nb))))

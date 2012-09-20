@@ -11,7 +11,12 @@
       (response/redirect "/session/new")) ))
 
 
-(defn is-numeric? 
+(defn is-integer? 
   [cost]
   (and cost (= (count (seq (re-find #"\d+" (trim cost)))) (count (seq (trim cost))))))
+
+
+(defn is-float? 
+  [cost]
+  (and cost (= (count (seq (re-find #"\d+\.*\d*" (trim cost)))) (count (seq (trim cost))))))
 

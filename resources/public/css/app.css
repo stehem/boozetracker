@@ -1,1 +1,32 @@
 .chart {float:left}
+#averages {clear:both}
+.ui-datepicker { font-size: 10px; }
+form input {width: 80px}
+#header {
+  height: 60px;
+  background-color: #F3F3F3;
+  padding-top: 5px;
+  padding-left: 5px;
+}
+#logo-img{ float:left;}
+#logo-txt {
+  float:left;
+  margin-top: 17px;
+  font-family: 'Syncopate', sans-serif;
+  font-size: 25px;
+}
+#logout {
+  float:right;
+  margin-top: 15px;
+  margin-right: 10px;
+}
+body {font-family: 'Droid Sans', sans-serif;}
+#cost-form {
+  margin: auto;
+  margin-top: 20px;
+  padding: 20px;
+  width: 600px;
+  border:1px solid #DDDDDD;
+  border-radius: 4px 4px 4px 4px;
+
+}
