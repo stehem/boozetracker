@@ -12,19 +12,16 @@
         [hiccup.core]))
 
 
-(defn has-errors 
-  [field]
-  (not (empty? (vali/get-errors field))))
 
 
 (defpartial cost-form [tab]
    (html
     (common/layout-w-auth
-    [:div#cost-form
+    [:div#cost-form.bt-form
      [:legend "Track some drinking"]
      (form-to {:class "form-horizontal"} [:post "/costs"]
 
-      [:div {:class (str "control-group" (if (has-errors :date) " error"))}
+      [:div {:class (str "control-group" (if (has-errors? :date) " error"))}
         (label {:class "control-label"} "date" "Date of boozing")
         [:div.controls
           (text-field {:id "date"} "date" (:date tab))
@@ -32,7 +29,7 @@
           [:span.help-inline
           (vali/on-error :date common/error-item)  ] ]  ]
 
-      [:div {:class (str "control-group" (if (has-errors :type) " error"))}
+      [:div {:class (str "control-group" (if (has-errors? :type) " error"))}
         (label {:class "control-label"} "cost-type" "Weapon of choice")
         [:div.controls
         [:label {:class "radio inline"}
@@ -49,7 +46,7 @@
           [:span.help-inline
             (vali/on-error :type common/error-item)  ] ]  ]
 
-      [:div {:class (str "control-group" (if (has-errors :cost) " error"))}
+      [:div {:class (str "control-group" (if (has-errors? :cost) " error"))}
         (label {:class "control-label"} "cost" "Amount of damages")
         [:div.controls
           (text-field {:id "cost-cost"} "cost" (:cost tab)) 
@@ -57,7 +54,7 @@
           [:span.help-inline
             (vali/on-error :cost common/error-item)  ]  ]  ] 
 
-      [:div {:class (str "control-group" (if (has-errors :unit) " error"))}
+      [:div {:class (str "control-group" (if (has-errors? :unit) " error"))}
         (label {:class "control-label"} "unit" "Number of drinks")
         [:div.controls
           (text-field {:id "cost-unit"} "unit" (:unit tab)) 

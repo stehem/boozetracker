@@ -1,4 +1,5 @@
 (ns boozetracker.utils
+  (:require [noir.validation :as vali])
   (:use [noir.core]
         [clojure.string]))
 
@@ -19,4 +20,10 @@
 (defn is-float? 
   [cost]
   (and cost (= (count (seq (re-find #"\d+\.*\d*" (trim cost)))) (count (seq (trim cost))))))
+
+
+(defn has-errors? 
+  [field]
+  (not (empty? (vali/get-errors field))))
+
 

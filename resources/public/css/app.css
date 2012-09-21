@@ -1,12 +1,14 @@
-.chart {float:left}
 #averages {clear:both}
 .ui-datepicker { font-size: 10px; }
+.ui-tabs { font-size: 10px; }
 form input {width: 80px}
 #header {
+  background: #EE413A;
   height: 60px;
-  background-color: #F3F3F3;
   padding-top: 5px;
   padding-left: 5px;
+  border-top: 1px solid #BEBEBE;
+  border-bottom: 1px solid #BEBEBE;
 }
 #logo-img{ float:left;}
 #logo-txt {
@@ -14,19 +16,51 @@ form input {width: 80px}
   margin-top: 17px;
   font-family: 'Syncopate', sans-serif;
   font-size: 25px;
+  color: white;
 }
 #logout {
   float:right;
   margin-top: 15px;
   margin-right: 10px;
+  color: #B6B6B6;
 }
-body {font-family: 'Droid Sans', sans-serif;}
-#cost-form {
+#logout a {color: #B6B6B6; text-decoration: underline;}
+body {
+  /* background-image:url(/images/subtle_dots.png); background-repeat:repeat */
+  background-color: #F3F3F3;
+  font-family: 'Droid Sans', sans-serif;
+}
+.bt-form{
   margin: auto;
   margin-top: 20px;
   padding: 20px;
-  width: 600px;
   border:1px solid #DDDDDD;
   border-radius: 4px 4px 4px 4px;
-
+}
+#cost-form {
+  width: 600px;
+}
+#user-form{
+  background-color: white;
+  width: 500px;
+}
+#user-form input {width: 100px}
+#content {
+  background-color: #F3F3F3;
+  min-height: 500px;
+}
+.chart{
+  padding: 50px;
+}
+#stats{
+  margin-top: 20px;
+  padding: 10px;
+  height: 300px;
+}
+#recap{
+  float: left;
+}
+#gauge{
+  float: left;
+  margin: 60px 0 0 85px;
 }

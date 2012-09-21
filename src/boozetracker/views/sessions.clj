@@ -9,21 +9,39 @@
   (:use [noir.core]
         [somnium.congomongo]
         [hiccup.form-helpers]
+        [boozetracker.utils]
         [hiccup.page-helpers]
         [hiccup.core]))
 
 
 (defpage "/session/new" {:as user}
   (html
-    (form-to [:post "/sessions"]
-      [:div#session-form-username
-        (label "username" "Username")
-        (text-field "username" (:username user))]
-      [:div#session-form-username
-        (label "password" "password")
-        (password-field "password")]
-      (submit-button "Login")  
-      (for [attr [:username :password]] (vali/on-error attr common/error-item))  )))
+    (common/layout-w-auth 
+    [:div#user-form.bt-form
+      (form-to {:class "form-horizontal"} [:post "/sessions"]
+        [:legend "Login"]
+
+        [:div {:class (str "control-group" (if (has-errors? :username) " error"))}
+          (label {:class "control-label"} "username" "Username")
+          [:div.controls
+            (text-field "username" (:username user)) 
+          [:div.controls]
+          [:span.help-inline
+            (vali/on-error :username common/error-item)  ]  ] ]
+
+          [:div {:class (str "control-group" (if (has-errors? :password) " error"))}
+            (label {:class "control-label"} "password" "Password")
+            [:div.controls
+              (password-field "password")  
+            [:div.controls]
+            [:span.help-inline
+              (vali/on-error :password common/error-item)  ]  ] ]
+
+          [:div.control-group
+            [:div.controls
+              (submit-button {:class "btn btn-info"} "Sign up") ]  ]
+        ) 
+     ]  )))
 
 
 (defpage [:post "/sessions"] {:as session}
@@ -36,7 +54,7 @@
           (session/put! :user-name login)
           (response/redirect "/cost/new") ) ) )
     (response/status 401
-      (common/layout-w-auth (render "/session/new" session))) ) )
+      (render "/session/new" session)) ) )
 
 
 (defpage "/session/delete" []

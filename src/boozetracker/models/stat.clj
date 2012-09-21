@@ -136,3 +136,17 @@
 ;TODO gauge alcoholism level 
 
 
+(defn gauge
+  []
+  (let [spend (avg-spend-month)]
+    (cond
+      (and (> spend 0) (< spend 20)) "20"
+      (and (> spend 20) (< spend 40)) "30"
+      (and (> spend 40) (< spend 60)) "35"
+      (and (> spend 60) (< spend 80)) "40"
+      (and (> spend 80) (< spend 100)) "50"
+      (and (> spend 100) (< spend 150)) "55"
+      (and (> spend 150) (< spend 200)) "60"
+      (and (> spend 200) (< spend 250)) "70"
+      (and (> spend 250) (< spend 300)) "80"
+      (> spend 300) "90"  )))
