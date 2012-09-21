@@ -67,12 +67,6 @@
                 #(let [date (to-cljdate (:date %))] (format "%s-%s" (month date) (year date))) 
                 (for-current-user)  )))
 
-
-(defn sorted-spend-month
-  []
-  (map #(into [] (butlast %))
-  (sort-by last (map #(conj % (to-long (parse custom-formatter-r (first %)))) (spend-month))))  )
-  
   
 (defn spend-day
   []
@@ -89,10 +83,20 @@
   (int (/ (total-spend) (count (spend-day)))) )
 
 
+(defn sorted
+  [f frame]
+  (map #(into [] (butlast %))
+    (sort-by last (map #(conj % (to-long (f %))) frame)))  )
+ 
+
+(defn sorted-spend-month
+  []
+  (sorted #(parse custom-formatter-r (first %)) (spend-month)))
+
+
 (defn sorted-spend-day
   []
-  (map #(into [] (butlast %))
-  (sort-by last (map #(conj % (to-long (to-cljdate (first %)))) (spend-day))) ))
+  (sorted #(to-cljdate (first %)) (spend-day)))
 
 
 (defn min-date
