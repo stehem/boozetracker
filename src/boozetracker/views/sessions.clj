@@ -39,7 +39,12 @@
 
           [:div.control-group
             [:div.controls
-              (submit-button {:class "btn btn-info"} "Sign up") ]  ]
+              (submit-button {:class "btn btn-info"} "Login") ]  ]
+
+          [:div.control-group
+            [:div.controls
+              (link-to "/user/new" "Register") ]  ]
+
         ) 
      ]  )))
 

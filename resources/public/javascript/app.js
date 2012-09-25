@@ -1,4 +1,67 @@
 $(function(){
   $('#date').datepicker({dateFormat: 'dd-mm-yy'});
   $('#stats').tabs();
+
+  $('.edit-date').editable(editstuff, { 
+      type: 'datepicker',
+      datepicker: {dateFormat: 'dd-mm-yy'}
+    }
+  );
+
+  $('.edit-type').editable(editstuff, { 
+      type: 'select',
+      data: " {'beer':'beer','wine':'wine','liquor':'liquor','cocktail':'cocktail','everything':'everything'}",
+      submit  : 'OK',
+    }
+  );
+
+  $('.edit').editable(editstuff, { 
+      submit  : 'OK'
+    }
+  );
+
+  $('.delete').on('click', function(){
+    var tr = $(this).parent();
+
+    if (confirm('Delete this entry?')){
+      $.ajax({
+        type: "POST",
+        cache: false,
+        url: '/cost/delete',
+        async: false,
+        dataType: 'json',
+        data: {'date': $(this).attr('data-date')},
+        success: function(data){
+          tr.hide();
+        },
+        error : function(req){result = "error";}
+      }); 
+    }
+  
+  })
+
 });
+
+function editstuff(value, settings){
+
+    var that = this;
+    var result;
+
+    $.ajax({
+      type: "POST",
+      cache: false,
+      url: '/cost/edit',
+      async: false,
+      dataType: 'json',
+      data: {'date': $(this).attr('data-date'), 'value': value, 'field': $(this).attr('data-field')},
+      success: function(data){
+        result = data.value;
+        $(that).attr('data-date', data.value);
+        if ($(that).attr('class') === "edit-date") $(that).siblings().attr('data-date', data.value);
+      },
+      error : function(req){result = "error";}
+    });
+    
+    return(result);
+
+}

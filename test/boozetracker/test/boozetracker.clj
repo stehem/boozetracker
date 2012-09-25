@@ -139,12 +139,12 @@
           (body-contains #"Drink required")
           (body-contains #"Cost required")  )
         (->
-          (send-request [:post "/costs"] {"date" "01/01/2012"}) 
+          (send-request [:post "/costs"] {"date" "01-01-2012"}) 
           (!body-contains #"Date required")
           (body-contains #"Drink required")
           (body-contains #"Cost required")  )
         (->
-          (send-request [:post "/costs"] {"date" "01/01/2012" "type" "beer"}) 
+          (send-request [:post "/costs"] {"date" "01-01-2012" "type" "beer"}) 
           (!body-contains #"Date required")
           (!body-contains #"Drink required")
           (body-contains #"Cost required")  )
@@ -187,20 +187,20 @@
         (insert! :users mock-user)
         (let [user1 (fetch-one :users :where {:_id (:_id mock-user)})]
           (is (= 0 (count (:costs user1))))
-          (send-request [:post "/costs"] {"date" "01/01/2012" "type" "beer" "cost" "123" "unit" "2"}) 
+          (send-request [:post "/costs"] {"date" "01-01-2012" "type" "beer" "cost" "123" "unit" "2"}) 
           (let [user2 (fetch-one :users :where {:_id (:_id mock-user)})]
             (is (= 1 (count (:costs user2))))
-            (send-request [:post "/costs"] {"date" "01/02/2012" "type" "wine" "cost" "234" "unit" "2"}) 
+            (send-request [:post "/costs"] {"date" "01-02-2012" "type" "wine" "cost" "234" "unit" "2"}) 
             (let [user3 (fetch-one :users :where {:_id (:_id mock-user)})]
               (is (= 2 (count (:costs user3)))))))  ))
  
 
 (deftest-w-mock test-pie-chart
-      (send-request [:post "/costs"] {"date" "01/01/2012" "type" "beer" "cost" "10" "unit" "2"}) 
-      (send-request [:post "/costs"] {"date" "01/03/2012" "type" "wine" "cost" "20" "unit" "2"}) 
+      (send-request [:post "/costs"] {"date" "01-01-2012" "type" "beer" "cost" "10" "unit" "2"}) 
+      (send-request [:post "/costs"] {"date" "01-03-2012" "type" "wine" "cost" "20" "unit" "2"}) 
       (is (= "[['beer', 10.0], ['wine', 20.0]]" (Stat/format-chart (Stat/pie-chart))))
-      (send-request [:post "/costs"] {"date" "01/02/2012" "type" "beer" "cost" "10" "unit" "2"}) 
-      (send-request [:post "/costs"] {"date" "01/03/2012" "type" "liquor" "cost" "30" "unit" "2"}) 
+      (send-request [:post "/costs"] {"date" "01-02-2012" "type" "beer" "cost" "10" "unit" "2"}) 
+      (send-request [:post "/costs"] {"date" "01-03-2012" "type" "liquor" "cost" "30" "unit" "2"}) 
       (is (= "[['beer', 20.0], ['wine', 20.0], ['liquor', 30.0]]" (Stat/format-chart (Stat/pie-chart))))  )
 
 
@@ -268,3 +268,62 @@
       (send-request [:post "/costs"] {"date" "03-08-2012" "type" "wine" "cost" "2.5" "unit" "3"}) 
       (is (= 5) (Stat/avg-drinks-price))
       (is (= 2 (Stat/avg-drinks-nb))))
+
+
+(deftest-w-mock test-edit-get
+      (send-request [:post "/costs"] {"date" "01-09-2012" "type" "beer" "cost" "15" "unit" "3"}) 
+      (send-request [:post "/costs"] {"date" "03-09-2012" "type" "wine" "cost" "6" "unit" "1"}) 
+      (send-request [:post "/costs"] {"date" "05-09-2012" "type" "beer" "cost" "5" "unit" "1"}) 
+      (->
+        (send-request "/cost/edit")
+        (body-contains #"data-date=.01-09-2012.")
+        (body-contains #"data-field=.type.")
+        (body-contains #"data-field=.unit.")
+        (body-contains #"data-field=.cost.")
+        (body-contains #">beer<")
+        (body-contains #">15<")
+        (body-contains #">3<")  ) )
+
+
+
+(deftest-w-mock test-edit-post
+      (send-request [:post "/costs"] {"date" "01-09-2012" "type" "beer" "cost" "15" "unit" "3"}) 
+      (->
+        (send-request "/cost/edit")
+        (body-contains #"data-date=.01-09-2012.")
+        (body-contains #">01-09-2012<") )
+      (send-request [:post "/cost/edit"] {"date" "01-09-2012" "field" "date" "value" "10-09-2012"}) 
+      (->
+        (send-request "/cost/edit")
+        (body-contains #"data-date=.10-09-2012.")
+        (body-contains #">10-09-2012<") )
+      (send-request [:post "/cost/edit"] {"date" "10-09-2012" "field" "type" "value" "wine"}) 
+      (->
+        (send-request "/cost/edit")
+        (body-contains #">wine<") )
+      (send-request [:post "/cost/edit"] {"date" "10-09-2012" "field" "unit" "value" "4"}) 
+      (->
+        (send-request "/cost/edit")
+        (body-contains #">4<") )
+      (send-request [:post "/cost/edit"] {"date" "10-09-2012" "field" "cost" "value" "12.50"}) 
+      (->
+        (send-request "/cost/edit")
+        (body-contains #">12\.50<") )
+      (send-request [:post "/cost/edit"] {"date" "10-09-2012" "field" "cost" "value" "12€"}) 
+      (->
+        (send-request "/cost/edit")
+        (body-contains #">12\.50<") ) )
+
+
+(deftest-w-mock test-delete
+      (send-request [:post "/costs"] {"date" "01-09-2012" "type" "beer" "cost" "15" "unit" "3"}) 
+      (->
+        (send-request "/cost/edit")
+        (body-contains #"data-date=.01-09-2012.")
+        (body-contains #">01-09-2012<") )
+      (send-request [:post "/cost/delete"] {"date" "01-09-2012"}) 
+      (->
+        (send-request "/cost/edit")
+        (!body-contains #"data-date=.10-09-2012.")
+        (!body-contains #">10-09-2012<") )  )
+

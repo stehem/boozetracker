@@ -221,8 +221,10 @@
           [:div#month-chart.chart]   
           [:div#day-chart.chart] 
           [:div#avg-drink-price-chart.chart] 
-      ] 
-      
-      )
-)))
+      ] ) )))
 
+
+(defpage "/" []
+  (if (User/current-user)
+    (response/redirect "/stats")
+    (response/redirect "/session/new")  ) )

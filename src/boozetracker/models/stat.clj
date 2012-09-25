@@ -8,19 +8,6 @@
         [somnium.congomongo]))
 
 
-(defn for-current-user
-  []
-  (with-mongo db/conn
-    (:costs (fetch-one :users :where {:_id (:_id (User/current-user))}))  ))
-
-
-
-(defn grouped-by
-  [f]
-  (let [grouped f] 
-    (for [[type costs] grouped] (into [] [type (reduce + (map #(Float/parseFloat (:cost %)) costs))]))))
-
-
 (def custom-formatter (formatter "dd-MM-YYYY"))
 (def custom-formatter-r (formatter "MM-YYYY"))
 
@@ -32,6 +19,28 @@
 
 (def week {1 "Monday" 2 "Tuesday" 3 "Wednesday" 4 "Thursday" 5 "Friday" 6 "Saturday" 7 "Sunday"})
 
+
+(defn to-epoch
+  [date]
+  (to-long (to-cljdate date)))
+
+
+(defn for-current-user
+  []
+  (into [] (sort-by :epoch
+  (with-mongo db/conn
+    (:costs (fetch-one :users :where {:_id (:_id (User/current-user))}))  ))))
+
+
+(defn grouped-by
+  [f]
+  (let [grouped f] 
+    (for [[type costs] grouped] (into [] [type (reduce + (map #(Float/parseFloat (:cost %)) costs))]))))
+
+
+
+  
+  
 
 (defn pie-chart
   []
@@ -112,7 +121,7 @@
 (defn avg-spend-day
   []
   (let [days (in-days (interval (min-date) (max-date))) spend (total-spend)]
-    (int (/ spend days))  ))
+    (int (/ spend (if (= 0 days) 1 days)))  ))
 
 
 (defn total-drinks
@@ -154,3 +163,8 @@
       (and (> spend 200) (< spend 250)) "70"
       (and (> spend 250) (< spend 300)) "80"
       (> spend 300) "90"  )))
+
+
+
+
+; ONLY ONE COST MAX PER DATE

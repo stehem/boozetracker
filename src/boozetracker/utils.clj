@@ -1,6 +1,7 @@
 (ns boozetracker.utils
   (:require [noir.validation :as vali])
   (:use [noir.core]
+        [noir.request]
         [clojure.string]))
 
 
@@ -25,5 +26,10 @@
 (defn has-errors? 
   [field]
   (not (empty? (vali/get-errors field))))
+
+
+(defn url-active?
+  [url]
+  (if (= url (:uri (ring-request))) "active"))
 
 
