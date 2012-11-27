@@ -13,11 +13,10 @@
   (let [mongo-url (get (System/getenv) "MONGOHQ_URL")]
     (if mongo-url
       (let [config (split-mongo-url mongo-url)]
-        (authenticate
-          (make-connection  (:db config)
-                            (:host config)
-                            (Integer. (:port config)))
-          (:user config) (:pass config)))
+        (mongo! :db (:db config)
+               :host (:host config)
+               :port (Integer. (:port config)))
+       (authenticate (:user config) (:pass config)))
         (make-connection "beertabs"
                           :host "127.0.0.1"
                           :port 27017) )))
