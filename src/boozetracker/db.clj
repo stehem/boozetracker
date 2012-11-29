@@ -9,7 +9,7 @@
       (zipmap [:match :user :pass :host :port :db] (re-groups matcher))))) ;; Construct an options map.
 
 
-(def conn
+(defn conn []
 (let [mongo-url (get (System/getenv) "MONGOHQ_URL")]
     (println mongo-url)
     (if mongo-url
