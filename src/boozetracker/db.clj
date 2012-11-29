@@ -9,7 +9,7 @@
       (zipmap [:match :user :pass :host :port :db] (re-groups matcher))))) ;; Construct an options map.
 
 (defn conn []
-    (let [mongo-url (get (System/getenv) "MONGOHQ_URL") ;; Heroku puts it here.
+    (let [mongo-url (get (System/getenv) "MONGOHQ_URL")] ;; Heroku puts it here.
       (if mongo-url
         (make-connection mongo-url)
         (make-connection "beertabs"
