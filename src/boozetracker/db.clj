@@ -11,9 +11,8 @@
 
 (def conn
   (let [mongo-url (get (System/getenv) "MONGOHQ_URL")]
+    (println mongo-url)
     (if mongo-url
-        (do
-          (println mongo-url)
         (make-connection mongo-url) )
         (make-connection "beertabs"
                           :host "127.0.0.1"
