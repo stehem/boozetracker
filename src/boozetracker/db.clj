@@ -8,6 +8,7 @@
     (when (.find matcher) ;; Check if it matches.
       (zipmap [:match :user :pass :host :port :db] (re-groups matcher))))) ;; Construct an options map.
 
+(println "LOLOLOLOLO")
 
 (def conn
         (make-connection (get (System/getenv) "MONGOHQ_URL")) )

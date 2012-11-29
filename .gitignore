@@ -1,8 +1,11 @@
+/target
+/lib
+/classes
+/checkouts
 pom.xml
-*jar
-/lib/
-/classes/
+*.jar
+*.class
 .lein-deps-sum
-*.swp
-*.DS_Store
 .lein-failures
+.lein-plugins
+*.swp
