@@ -16,7 +16,6 @@
       (println "Initializing mongo @ " mongo-url)
       (mongo! :db (:db config) :host (:host config) :port (Integer. (:port config))) ;; Setup global mongo.
       (authenticate (:user config) (:pass config)) ;; Setup u/p.
-      (or (collection-exists? :firstcollection) ;; Create collection named 'firstcollection' if it doesn't exist.
-(create-collection! :firstcollection)))))
+      )))
 
 
