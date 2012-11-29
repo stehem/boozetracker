@@ -10,7 +10,7 @@
 
 
 (def conn
-  (let [mongo-url (get (System/getenv) "MONGOHQ_URL")]
+(let [mongo-url (get (System/getenv) "MONGOHQ_URL")]
     (println mongo-url)
     (if mongo-url
         (make-connection mongo-url) 
