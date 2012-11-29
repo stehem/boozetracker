@@ -8,12 +8,16 @@
     (when (.find matcher) ;; Check if it matches.
       (zipmap [:match :user :pass :host :port :db] (re-groups matcher))))) ;; Construct an options map.
 
-(defn conn []
-    (let [mongo-url (get (System/getenv) "MONGOHQ_URL")] ;; Heroku puts it here.
-      (if mongo-url
-        (make-connection mongo-url)
-        (make-connection "beertabs"
-                          :host "127.0.0.1"
-                          :port 27017) )))
+(def conn 
+  "Checks if connection and collection exist, otherwise initialize."
+  (let [mongo-url (get (System/getenv) "MONGOHQ_URL")]
+    (if mongo-url
+      (when (not (connection? *mongo-config*)) ;; If global connection doesn't exist yet.
+      (let [config (split-mongo-url mongo-url)] ;; Extract options.
+        (make-connection :db (:db config) :host (:host config) :port (Integer. (:port config))) ;; Setup global mongo.
+        (authenticate (:user config) (:pass config)) ;; Setup u/p.
+      ))
+        (make-connection :db "beertabs" :host "127.0.0.1" :port "27017")
+      )))
 
 

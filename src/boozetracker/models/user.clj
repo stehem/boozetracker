@@ -24,10 +24,10 @@
 
 (defn ^:dynamic current-user
   []
-  (db/conn)
+  (with-mongo db/conn
     (or (collection-exists? :users)
       (create-collection! :users))
-    (fetch-one :users :where {:_id (session/get :user-id)}))
+    (fetch-one :users :where {:_id (session/get :user-id)})))
 
 
 (defn ^:dynamic logged-in?
