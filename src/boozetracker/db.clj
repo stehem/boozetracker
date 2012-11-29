@@ -14,7 +14,8 @@
     (if mongo-url
       (when (not (connection? *mongo-config*)) ;; If global connection doesn't exist yet.
       (let [config (split-mongo-url mongo-url)] ;; Extract options.
-        (set-connection! (make-connection mongo-url)) ;; Setup global mongo.
+   (mongo! :db (:db config) :host (:host config) :port (Integer. (:port config))) ;; Setup global mongo.
+      (authenticate (:user config) (:pass config))
       ))
         (set-connection! (make-connection :db "beertabs" :host "127.0.0.1" :port "27017"))
       )))
