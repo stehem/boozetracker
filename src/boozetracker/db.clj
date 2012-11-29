@@ -11,6 +11,6 @@
 (println (get (System/getenv) "MONGOHQ_URL"))
 
 (def conn
-        (make-connection (get (System/getenv) "MONGOHQ_URL")) )
+        (make-connection (str (get (System/getenv) "MONGOHQ_URL")) ))
 
 
