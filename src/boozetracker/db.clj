@@ -8,7 +8,7 @@
     (when (.find matcher) ;; Check if it matches.
       (zipmap [:match :user :pass :host :port :db] (re-groups matcher))))) ;; Construct an options map.
 
-(def conn 
+(defn conn []
   "Checks if connection and collection exist, otherwise initialize."
   (when (not (connection? *mongo-config*)) ;; If global connection doesn't exist yet.
     (let [mongo-url (get (System/getenv) "MONGOHQ_URL") ;; Heroku puts it here.
