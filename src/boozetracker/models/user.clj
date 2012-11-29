@@ -24,7 +24,7 @@
 
 (defn ^:dynamic current-user
   []
-  (with-mongo db/conn
+  (db/conn
     (or (collection-exists? :users)
       (create-collection! :users))
     (fetch-one :users :where {:_id (session/get :user-id)})))
