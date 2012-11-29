@@ -9,13 +9,11 @@
       (zipmap [:match :user :pass :host :port :db] (re-groups matcher))))) ;; Construct an options map.
 
 (defn conn []
-  "Checks if connection and collection exist, otherwise initialize."
-  (when (not (connection? *mongo-config*)) ;; If global connection doesn't exist yet.
     (let [mongo-url (get (System/getenv) "MONGOHQ_URL") ;; Heroku puts it here.
-          config (split-mongo-url mongo-url)] ;; Extract options.
-      (println "Initializing mongo @ " mongo-url)
-      (mongo! :db (:db config) :host (:host config) :port (Integer. (:port config))) ;; Setup global mongo.
-      (authenticate (:user config) (:pass config)) ;; Setup u/p.
-      )))
+      (if mongo-url
+        (make-connection mongo-url)
+        (make-connection "beertabs"
+                          :host "127.0.0.1"
+                          :port 27017) )))
 
 
