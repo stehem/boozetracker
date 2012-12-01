@@ -224,7 +224,3 @@
       ] ) )))
 
 
-(defpage "/" []
-  (if (User/current-user)
-    (response/redirect "/stats")
-    (response/redirect "/session/new")  ) )

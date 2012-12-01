@@ -28,8 +28,8 @@
 (defn for-current-user
   []
   (into [] (sort-by :epoch
-  (with-mongo db/conn
-    (:costs (fetch-one :users :where {:_id (:_id (User/current-user))}))  ))))
+  (db/conn)
+    (:costs (fetch-one :users :where {:_id (:_id (User/current-user))}))  )))
 
 
 (defn grouped-by

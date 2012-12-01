@@ -8,14 +8,14 @@
 
 (defn username-free?
   [username]
-  (with-mongo db/conn
-    (nil? (fetch-one :users :where {:username username})) ))
+  (db/conn)
+    (nil? (fetch-one :users :where {:username username})) )
 
 
 (defn create
   [user]
-  (with-mongo db/conn
-    (insert! :users {:username (:username user) :password (crypt/encrypt (:password user)) :costs []})))
+  (db/conn)
+    (insert! :users {:username (:username user) :password (crypt/encrypt (:password user)) :costs []}))
 
 (defn destroy
   [username]

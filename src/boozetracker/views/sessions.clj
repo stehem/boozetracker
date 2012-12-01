@@ -51,7 +51,7 @@
 
 (defpage [:post "/sessions"] {:as session}
   (if (Session/valid? session)
-  (with-mongo db/conn
+  (do (db/conn)
     (let [user (fetch-one :users :where {:username (:username session)})
       {id :_id login :username pw :password} user]
         (do

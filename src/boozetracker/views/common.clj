@@ -2,6 +2,7 @@
   (:require [boozetracker.models.user :as User]
             [noir.session :as session])
   (:use [noir.core]
+        [noir.request]
         [boozetracker.utils]
         [hiccup.page-helpers]))
 
@@ -46,7 +47,7 @@
 
       [:div#content
         [:div.container-fluid
-          (if (User/current-user)
+          (if (and (User/current-user) (not= "/" (:uri (ring-request))))
           [:div#nav-top.navbar-inner
             [:div.navbar
               [:ul {:class "nav"}

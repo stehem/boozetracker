@@ -7,9 +7,9 @@
 
 (defn authenticate?
   [username password]
-  (with-mongo db/conn
+  (db/conn)
     (let [user (fetch-one :users :where {:username username}) pw (:password user)]
-      (and user (crypt/compare password pw)))))
+      (and user (crypt/compare password pw))))
 
 
 (defn valid? [{:keys [username password]}]
