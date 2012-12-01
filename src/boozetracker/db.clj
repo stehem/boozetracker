@@ -13,12 +13,9 @@
     (let [mongo-url (get (System/getenv) "MONGOHQ_URL")] ;; Heroku puts it here.
       (if mongo-url
     (let [config (split-mongo-url mongo-url)] ;; Extract options.
-      (println "Initializing mongo @ " mongo-url)
-      (mongo! :db (:db config) :host (:host config) :port (Integer. (:port config))) ;; Setup global mongo.
-      (authenticate (:user config) (:pass config)) ;; Setup u/p.
-      (or (collection-exists? :firstcollection) ;; Create collection named 'firstcollection' if it doesn't exist.
-(create-collection! :firstcollection)))
-      (make-connection "beertabs" "127.0.0.1" 27017)
+      (set-connection! (make-connection :db (:db config) :host (:host config) :port (Integer. (:port config))))
+      )
+      (set-connection! (make-connection "beertabs" "127.0.0.1" 27017))
     )
   )
   )
