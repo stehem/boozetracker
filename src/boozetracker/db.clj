@@ -14,6 +14,7 @@
       (if mongo-url
     (let [config (split-mongo-url mongo-url)] ;; Extract options.
       (set-connection! (make-connection :db (:db config) :host (:host config) :port (Integer. (:port config))))
+      (authenticate (:user config) (:pass config)) ;; Setup u/p.
       )
       (set-connection! (make-connection "beertabs" "127.0.0.1" 27017))
     )
