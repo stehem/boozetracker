@@ -75,20 +75,19 @@
 
 
 (defpage-w-auth [:post, "/costs"] {:as cost}
-  (with-mongo db/conn
     (if (Cost/valid? cost)
       (let [user (User/current-user)]
         (if user
           (do
+            (db/conn)
             (update! :users {:_id (:_id user)} {:$push {:costs (merge cost {:epoch (Stat/to-epoch (:date cost))})}})
             (response/redirect "/stats") )
           "with great failure"  ) )
-    (render "/cost/new" cost) ) ) )
+    (render "/cost/new" cost) ) )
 
 
 
 (defpage-w-auth "/cost/edit" []
-  (with-mongo db/conn
     (html (common/layout-w-auth
     [:div#edit
       [:table {:class "table table-bordered"}
@@ -114,35 +113,35 @@
         ]
       ]
       ]
-    ) ))
+    ) )
   )
 
 
 
 (defpage-w-auth [:post "/cost/edit"] {:as new-cost}
-  (with-mongo db/conn
     (let [user (User/current-user)]
       (if user
         (let [updated-costs (Cost/update (:date new-cost) (:field new-cost) (:value new-cost))]
           (if updated-costs
             (do
+              (db/conn)
               (update! :users {:_id (:_id user)} {:$set {:costs updated-costs}})
               (response/json {:value (:value new-cost)})  )
-            (response/json {:value "error"})  ) ) ) ) ) )
+            (response/json {:value "error"})  ) ) ) ) )
         
 
 
 
 (defpage-w-auth [:post "/cost/delete"] {:as cost}
-  (with-mongo db/conn
     (let [user (User/current-user)]
       (if user
         (let [updated-costs (Cost/update-destroy (:date cost))]
           (if updated-costs
             (do
+              (db/conn)
               (update! :users {:_id (:_id user)} {:$set {:costs updated-costs}})
               (response/json {:value "success"})  )
-            (response/json {:value "error"})  ) ) ) ) ) )
+            (response/json {:value "error"})  ) ) ) ) )
 
 
 

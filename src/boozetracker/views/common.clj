@@ -62,7 +62,9 @@
           ]
         ] 
       ]
-      [:div#footer]
+      [:footer
+        (link-to "http://clojure.org/", "Created with Clojure")
+      ]
     ]))
 
 

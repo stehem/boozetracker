@@ -7,7 +7,7 @@
     (when (.find matcher)
       (zipmap [:match :user :pass :host :port :db] (re-groups matcher)))))
 
-(defn conn []
+(defn ^:dynamic conn []
   (let [mongo-url (get (System/getenv) "MONGOHQ_URL")]
     (if mongo-url
       (let [config (split-mongo-url mongo-url)]
