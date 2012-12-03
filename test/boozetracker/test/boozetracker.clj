@@ -12,10 +12,11 @@
         [noir.util.test2]))
 
 
-(def conn-test
-  (make-connection "beertabs-test"
+(defn conn-test
+  []
+  (set-connection! (make-connection "beertabs-test"
                    :host "127.0.0.1"
-                   :port 27017))
+                   :port 27017)))
 
 (def mock-user
   {:_id 1 :username "dummy" :password "dummy" })
@@ -25,11 +26,11 @@
   [fname & body]
   `(deftest ~fname
     (binding [User/logged-in? (fn[] true) User/current-user (fn[] mock-user)] 
-    (with-redefs [db/conn conn-test] 
-    (with-mongo db/conn
-    (drop-coll! :users)
-      ~@body  )))))
-
+    (with-redefs-fn {#'db/conn (fn[](conn-test))}
+      #(do
+        (db/conn)
+        (drop-coll! :users)
+        ~@body  )))))
 
 (deftest-w-mock test-new-user
     (with-noir
@@ -109,14 +110,15 @@
   
 
 (deftest test-costs
-  (with-redefs [db/conn conn-test] 
-  (with-mongo db/conn
-  (drop-coll! :users)
-    (with-noir
-      (->
-        (send-request "/cost/new") 
-        (has-status 302)
-        (redirects-to "/session/new") )))))
+    (with-redefs-fn {#'db/conn (fn[](conn-test))}
+      #(do
+        (db/conn)
+        (drop-coll! :users)
+        (with-noir
+          (->
+            (send-request "/cost/new") 
+            (has-status 302)
+            (redirects-to "/session/new") )))))
 
 
 (deftest-w-mock test-costs2
