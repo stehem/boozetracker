@@ -27,8 +27,8 @@
 
 (defn for-current-user
   []
-  (into [] (sort-by :epoch
   (db/conn)
+  (into [] (sort-by :epoch
     (:costs (fetch-one :users :where {:_id (:_id (User/current-user))}))  )))
 
 

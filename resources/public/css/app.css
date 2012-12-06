@@ -141,3 +141,9 @@ footer a{
   color: black;
   text-decoration: underline;
 }
+#flash{
+  margin-top: 20px;
+  margin-left: 280px;
+  margin-bottom: 20px;
+  width: 520px;
+}

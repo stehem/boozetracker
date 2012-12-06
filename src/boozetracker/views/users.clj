@@ -1,6 +1,8 @@
 (ns boozetracker.views.users
   (:require [boozetracker.views.common :as common]
             [noir.validation :as vali]
+            [noir.response :as response]
+            [noir.session :as session]
             [boozetracker.models.user :as User])
   (:use [noir.core]
         [boozetracker.utils]
@@ -42,7 +44,10 @@
 
 (defpage [:post "/users"] {:as user}
   (if (User/valid? user)
-    (User/create user)
+    (do
+      (User/create user)
+      (session/flash-put! "User created, you can now login!")
+      (response/redirect "/session/new"))
     (render "/user/new" user) ) )
 
 
