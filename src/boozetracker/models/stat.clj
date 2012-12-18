@@ -31,6 +31,9 @@
   (into [] (sort-by :epoch
     (:costs (fetch-one :users :where {:_id (:_id (User/current-user))}))  )))
 
+(defn has-costs?
+  []
+  (not (empty? (for-current-user))))
 
 (defn grouped-by
   [f]

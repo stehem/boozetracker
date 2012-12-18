@@ -1,5 +1,6 @@
 (ns boozetracker.views.common
   (:require [boozetracker.models.user :as User]
+            [boozetracker.models.stat :as Stat]
             [noir.session :as session])
   (:use [noir.core]
         [noir.request]
@@ -56,9 +57,11 @@
           [:div#nav-top.navbar-inner
             [:div.navbar
               [:ul {:class "nav"}
-               [:li {:class (url-active? "/stats")} (link-to "/stats" "Stats")]
+               (if (Stat/has-costs?)
+                  [:li {:class (url-active? "/stats")} (link-to "/stats" "Stats")])
                [:li {:class (url-active? "/cost/new")} (link-to "/cost/new" "New")]
-               [:li {:class (url-active? "/cost/edit")} (link-to "/cost/edit" "Edit")]
+               (if (Stat/has-costs?)
+                  [:li {:class (url-active? "/cost/edit")} (link-to "/cost/edit" "Edit")])
               ]
             ] ]
           )
