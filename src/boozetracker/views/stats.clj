@@ -26,6 +26,9 @@
       ");
       var options = {'title':'Spending by drink',
       'backgroundColor': '#ffffff',
+      width: 600, 
+      height: 350,
+      is3D: true
       };
       var chart = new google.visualization.PieChart(document.getElementById('pie-chart'));
       chart.draw(data, options);
@@ -45,6 +48,9 @@
       ");
       var options = {'title':'Spending by day',
       'backgroundColor': '#ffffff',
+      width: 600, 
+      height: 350,
+      is3D: true
       };
       var chart = new google.visualization.PieChart(document.getElementById('days-chart'));
       chart.draw(data, options);
@@ -64,6 +70,13 @@
       ");
       var options = {'title':'Spending by month',
       'backgroundColor': '#ffffff',
+      width: 800, 
+      height: 350,
+      is3D: true,
+      'hAxis': {
+        slantedText:true, 
+        slantedTextAngle:45
+      },
       };
       var chart = new google.visualization.ColumnChart(document.getElementById('month-chart'));
       chart.draw(data, options);
@@ -84,7 +97,13 @@
       ");
       var options = {'title':'Spending by day',
       'backgroundColor': '#ffffff',
-      'hAxis': {'showTextEvery':3},
+      'hAxis': {
+        slantedText:true, 
+        slantedTextAngle:45
+      },
+      width: 800, 
+      height: 350,
+      is3D: true
       };
       var chart = new google.visualization.LineChart(document.getElementById('day-chart'));
       chart.draw(data, options);
@@ -105,6 +124,13 @@
       var options = {'title':'Average Drink Price',
       'backgroundColor': '#ffffff',
       'hAxis': {'showTextEvery':3},
+      width: 800, 
+      height: 350,
+      is3D: true,
+      'hAxis': {
+        slantedText:true, 
+        slantedTextAngle:45
+      }
       };
       var chart = new google.visualization.LineChart(document.getElementById('avg-drink-price-chart'));
       chart.draw(data, options);
@@ -125,7 +151,10 @@
           width: 400, height: 120,
           redFrom: 90, redTo: 100,
           yellowFrom:75, yellowTo: 90,
-          minorTicks: 5
+          minorTicks: 5,
+          width: 200, 
+          height: 200,
+          is3D: true
         };
 
         var chart = new google.visualization.Gauge(document.getElementById('recap-gauge'));

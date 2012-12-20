@@ -55,10 +55,11 @@ body {
 #stats{
   margin-top: 20px;
   padding: 10px;
-  height: 300px;
+  height: 400px;
 }
 #recap{
   float: left;
+  margin-top: 50px;
 }
 #gauge{
   float: left;
