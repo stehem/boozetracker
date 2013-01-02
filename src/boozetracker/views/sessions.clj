@@ -5,9 +5,9 @@
             [noir.validation :as vali]
             [noir.session :as session]
             [boozetracker.db :as db]
+            [boozetracker.models.user :as User]
             [boozetracker.models.session :as Session])
   (:use [noir.core]
-        [somnium.congomongo]
         [hiccup.form-helpers]
         [boozetracker.utils]
         [hiccup.page-helpers]
@@ -51,9 +51,9 @@
 
 (defpage [:post "/sessions"] {:as session}
   (if (Session/valid? session)
-  (do (db/conn)
-    (let [user (fetch-one :users :where {:username (:username session)})
-      {id :_id login :username pw :password} user]
+  (do 
+    (let [user (User/find-by-username (:username session))
+      {id :id login :username} user]
         (do
           (session/put! :user-id id)
           (session/put! :user-name login)

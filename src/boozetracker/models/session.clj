@@ -1,15 +1,14 @@
 (ns boozetracker.models.session
   (:require [boozetracker.db :as db]
+            [boozetracker.models.user :as User]
             [noir.util.crypt :as crypt]
-            [noir.validation :as vali])
-  (:use [somnium.congomongo]))
+            [noir.validation :as vali]))
 
 
 (defn authenticate?
   [username password]
-  (db/conn)
-    (let [user (fetch-one :users :where {:username username}) pw (:password user)]
-      (and user (crypt/compare password pw))))
+  (let [user (User/find-by-username username)]
+    (and user (crypt/compare password (:password user)))))
 
 
 (defn valid? [{:keys [username password]}]

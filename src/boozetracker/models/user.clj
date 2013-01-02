@@ -3,31 +3,41 @@
             [noir.util.crypt :as crypt]
             [noir.session :as session]
             [noir.validation :as vali])
-  (:use [somnium.congomongo]))
+  )
 
+(use 'korma.core)
+
+(defentity users
+  (pk :id)
+  (table :users)
+  (entity-fields :username :password))
+
+
+
+(defn find-by-username
+  [username]
+  (first
+    (select users
+      (where {:username username}))))
 
 (defn username-free?
   [username]
-  (db/conn)
-    (nil? (fetch-one :users :where {:username username})) )
-
+  (not (nil? (find-by-username username))))
 
 (defn create
   [user]
-  (db/conn)
-    (insert! :users {:username (:username user) :password (crypt/encrypt (:password user)) :costs []}))
+  (insert users
+    (values {:username (:username user) :password (crypt/encrypt (:password user))})))
 
 (defn destroy
   [username]
-  (destroy! :users {:username username}))
+  )
 
 
 (defn ^:dynamic current-user
   []
-  (db/conn)
-    (or (collection-exists? :users)
-      (create-collection! :users))
-    (fetch-one :users :where {:_id (session/get :user-id)}))
+  (select users
+    (where {:id (session/get :user-id)})))
 
 
 (defn ^:dynamic logged-in?

@@ -3,7 +3,7 @@
             [boozetracker.models.stat :as Stat]
             [noir.util.crypt :as crypt]
             [noir.validation :as vali])
-  (:use [somnium.congomongo]
+  (:use 
         [boozetracker.utils]))
 
 

@@ -5,7 +5,7 @@
   (:use [clj-time.core :exclude [extend]]
         [clj-time.format]
         [clj-time.coerce]
-        [somnium.congomongo]))
+        ))
 
 
 (def custom-formatter (formatter "dd-MM-YYYY"))
@@ -27,9 +27,7 @@
 
 (defn for-current-user
   []
-  (db/conn)
-  (into [] (sort-by :epoch
-    (:costs (fetch-one :users :where {:_id (:_id (User/current-user))}))  )))
+   ) 
 
 (defn has-costs?
   []

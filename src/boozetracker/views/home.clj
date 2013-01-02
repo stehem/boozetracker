@@ -10,7 +10,7 @@
         [hiccup.core]))
 
 (defpage "/" []
-  (if (not (User/current-user))
+  (if (empty? (User/current-user))
     (common/layout-w-auth
       [:div {:id "home"}
        [:p [:span {:id "home-header"} 

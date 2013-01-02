@@ -8,7 +8,6 @@
             [boozetracker.models.stat :as Stat]
             [boozetracker.models.user :as User])
   (:use [noir.core]
-        [somnium.congomongo]
         [hiccup.form-helpers]
         [hiccup.page-helpers]
         [boozetracker.utils]

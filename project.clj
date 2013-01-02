@@ -1,7 +1,8 @@
 (defproject boozetracker "0.1.0-SNAPSHOT"
             :description "FIXME: write this!"
             :dependencies [[org.clojure/clojure "1.3.0"]
-                           [congomongo "0.1.5-SNAPSHOT"]
+                           [korma "0.3.0-beta7"]
+                           [postgresql "9.0-801.jdbc4"]
                            [noir-test2 "1.0.0-SNAPSHOT"]
                            [clj-time "0.4.4"]
                            [noir "1.2.1"]]

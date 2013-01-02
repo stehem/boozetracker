@@ -8,7 +8,7 @@
             [boozetracker.models.user :as User])
   (:use [noir.core]
         [boozetracker.utils]
-        [somnium.congomongo] [hiccup.form-helpers]
+        [hiccup.form-helpers]
         [hiccup.page-helpers]
         [hiccup.core]))
 
@@ -79,8 +79,7 @@
       (let [user (User/current-user)]
         (if user
           (do
-            (db/conn)
-            (update! :users {:_id (:_id user)} {:$push {:costs (merge cost {:epoch (Stat/to-epoch (:date cost))})}})
+            ;(update! :users {:_id (:_id user)} {:$push {:costs (merge cost {:epoch (Stat/to-epoch (:date cost))})}})
             (response/redirect "/stats") )
           "with great failure"  ) )
     (render "/cost/new" cost) ) )
@@ -124,8 +123,7 @@
         (let [updated-costs (Cost/update (:date new-cost) (:field new-cost) (:value new-cost))]
           (if updated-costs
             (do
-              (db/conn)
-              (update! :users {:_id (:_id user)} {:$set {:costs updated-costs}})
+              ;(update! :users {:_id (:_id user)} {:$set {:costs updated-costs}})
               (response/json {:value (:value new-cost)})  )
             (response/json {:value "error"})  ) ) ) ) )
         
@@ -138,8 +136,7 @@
         (let [updated-costs (Cost/update-destroy (:date cost))]
           (if updated-costs
             (do
-              (db/conn)
-              (update! :users {:_id (:_id user)} {:$set {:costs updated-costs}})
+              ;(update! :users {:_id (:_id user)} {:$set {:costs updated-costs}})
               (response/json {:value "success"})  )
             (response/json {:value "error"})  ) ) ) ) )
 
