@@ -6,6 +6,12 @@
   (:use 
         [boozetracker.utils]))
 
+(use 'korma.core)
+
+(defentity costs
+  (pk :id)
+  (table :costs)
+  (entity-fields :cost :type :unit :date :user_id))
 
 
 (defn valid? [{:keys [date type cost unit]}]
@@ -25,7 +31,7 @@
   (not (vali/errors? :date :type :cost :unit)))
 
 
-(defn update
+(defn update_
   [date attr value]
   (let [old-costs (Stat/for-current-user)
         old-costs-w-idx (map-indexed (fn[idx itm] (merge itm {:idx idx} )) old-costs)

@@ -1,10 +1,10 @@
 $(function(){
-  $('#date').datepicker({dateFormat: 'dd-mm-yy'});
+  $('#date').datepicker({dateFormat: 'yy-mm-dd'});
   $('#stats').tabs();
 
   $('.edit-date').editable(editstuff, { 
       type: 'datepicker',
-      datepicker: {dateFormat: 'dd-mm-yy'}
+      datepicker: {dateFormat: 'yy-mm-dd'}
     }
   );
 

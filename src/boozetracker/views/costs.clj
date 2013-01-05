@@ -8,12 +8,20 @@
             [boozetracker.models.user :as User])
   (:use [noir.core]
         [boozetracker.utils]
+        [clj-time.core]
+        [clj-time.format]
+        [clj-time.coerce]
         [hiccup.form-helpers]
         [hiccup.page-helpers]
         [hiccup.core]))
 
 
+(use 'korma.core)
 
+(defentity costs
+  (pk :id)
+  (table :costs)
+  (entity-fields :cost :type :unit :date :user_id))
 
 (defpartial cost-form [tab]
    (html
@@ -74,12 +82,23 @@
   (cost-form tab))
 
 
+(defn cast-types
+  [params]
+  (update-in
+    (update-in
+      (update-in params [:date] (fn[x] (java.sql.Date/valueOf (:date params))))
+      [:unit] (fn[x] (Integer/parseInt (:unit params))))
+    [:cost] (fn[x] (Float/parseFloat (:cost params)))))
+
+
 (defpage-w-auth [:post, "/costs"] {:as cost}
     (if (Cost/valid? cost)
       (let [user (User/current-user)]
         (if user
           (do
-            ;(update! :users {:_id (:_id user)} {:$push {:costs (merge cost {:epoch (Stat/to-epoch (:date cost))})}})
+                (println cost)
+            (insert costs
+              (values (cast-types cost)))
             (response/redirect "/stats") )
           "with great failure"  ) )
     (render "/cost/new" cost) ) )
@@ -120,7 +139,7 @@
 (defpage-w-auth [:post "/cost/edit"] {:as new-cost}
     (let [user (User/current-user)]
       (if user
-        (let [updated-costs (Cost/update (:date new-cost) (:field new-cost) (:value new-cost))]
+        (let [updated-costs (Cost/update_ (:date new-cost) (:field new-cost) (:value new-cost))]
           (if updated-costs
             (do
               ;(update! :users {:_id (:_id user)} {:$set {:costs updated-costs}})
