@@ -3,16 +3,11 @@
             [noir.util.crypt :as crypt]
             [noir.session :as session]
             [noir.validation :as vali])
+
+   (:use [boozetracker.orm])
   )
 
 (use 'korma.core)
-
-(defentity users
-  (pk :id)
-  (table :users)
-  (entity-fields :username :password))
-
-
 
 (defn find-by-username
   [username]

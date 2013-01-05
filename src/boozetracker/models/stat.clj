@@ -5,8 +5,11 @@
   (:use [clj-time.core :exclude [extend]]
         [clj-time.format]
         [clj-time.coerce]
+
+        [boozetracker.orm]
         ))
 
+(use 'korma.core)
 
 (def custom-formatter (formatter "dd-MM-YYYY"))
 (def custom-formatter-r (formatter "MM-YYYY"))
@@ -27,6 +30,8 @@
 
 (defn for-current-user
   []
+  (select costs
+    (where {:user_id (:id (User/current-user))}))
    ) 
 
 (defn has-costs?

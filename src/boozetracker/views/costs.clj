@@ -8,6 +8,7 @@
             [boozetracker.models.user :as User])
   (:use [noir.core]
         [boozetracker.utils]
+        [boozetracker.orm]
         [clj-time.core]
         [clj-time.format]
         [clj-time.coerce]
@@ -17,11 +18,6 @@
 
 
 (use 'korma.core)
-
-(defentity costs
-  (pk :id)
-  (table :costs)
-  (entity-fields :cost :type :unit :date :user_id))
 
 (defpartial cost-form [tab]
    (html
@@ -81,14 +77,29 @@
 (defpage-w-auth "/cost/new" {:as tab}
   (cost-form tab))
 
+(defn cast-type
+  [param params f]
+  (if (contains? params param)
+    (update-in params [param] (fn[x] f))
+    params))
+  
+(defn cast-type-date
+  [params]
+  (cast-type :date params (java.sql.Date/valueOf (:date params))))
+
+(defn cast-type-unit
+  [params]
+  (cast-type :unit params (Integer/parseInt (:unit params))))
+
+(defn cast-type-cost
+  [params]
+  (cast-type :cost params (Float/parseFloat (:cost params))))
 
 (defn cast-types
   [params]
-  (update-in
-    (update-in
-      (update-in params [:date] (fn[x] (java.sql.Date/valueOf (:date params))))
-      [:unit] (fn[x] (Integer/parseInt (:unit params))))
-    [:cost] (fn[x] (Float/parseFloat (:cost params)))))
+  (cast-type-cost
+    (cast-type-unit
+      (cast-type-date params))))
 
 
 (defpage-w-auth [:post, "/costs"] {:as cost}
@@ -98,7 +109,7 @@
           (do
                 (println cost)
             (insert costs
-              (values (cast-types cost)))
+              (values (assoc (cast-types cost) :user_id (:id user))))
             (response/redirect "/stats") )
           "with great failure"  ) )
     (render "/cost/new" cost) ) )
@@ -139,12 +150,9 @@
 (defpage-w-auth [:post "/cost/edit"] {:as new-cost}
     (let [user (User/current-user)]
       (if user
-        (let [updated-costs (Cost/update_ (:date new-cost) (:field new-cost) (:value new-cost))]
-          (if updated-costs
-            (do
-              ;(update! :users {:_id (:_id user)} {:$set {:costs updated-costs}})
-              (response/json {:value (:value new-cost)})  )
-            (response/json {:value "error"})  ) ) ) ) )
+        (println new-cost)
+              ;(response/json {:value (:value new-cost)})  )
+            (response/json {:value "error"})  ) ) ) 
         
 
 

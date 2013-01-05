@@ -4,15 +4,11 @@
             [noir.util.crypt :as crypt]
             [noir.validation :as vali])
   (:use 
+    [boozetracker.orm]
         [boozetracker.utils]))
 
+
 (use 'korma.core)
-
-(defentity costs
-  (pk :id)
-  (table :costs)
-  (entity-fields :cost :type :unit :date :user_id))
-
 
 (defn valid? [{:keys [date type cost unit]}]
   (vali/rule (vali/has-value? date)
