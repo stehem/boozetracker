@@ -35,6 +35,10 @@
     (select users
       (where {:id (session/get :user-id)}))))
 
+(defn current-user-id
+  []
+  (:id (current-user)))
+
 
 (defn ^:dynamic logged-in?
   []

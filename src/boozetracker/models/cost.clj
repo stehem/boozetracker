@@ -1,6 +1,7 @@
 (ns boozetracker.models.cost
   (:require [boozetracker.db :as db]
             [boozetracker.models.stat :as Stat]
+            [boozetracker.models.user :as User]
             [noir.util.crypt :as crypt]
             [noir.validation :as vali])
   (:use 
@@ -28,16 +29,11 @@
 
 
 (defn update_
-  [date attr value]
-  (let [old-costs (Stat/for-current-user)
-        old-costs-w-idx (map-indexed (fn[idx itm] (merge itm {:idx idx} )) old-costs)
-        old-cost (first (filter #(= (:date %) date) old-costs-w-idx))
-        new-costs (assoc-in old-costs [(:idx old-cost) (keyword attr)] value)
-        ]
-    (cond
-      (and (= attr "unit") (not (is-integer? value))) false
-      (and (= attr "cost") (not (is-float? value))) false
-      :else new-costs) ))
+  [param id]
+  (update costs
+    (set-fields param)
+    (where {:id (Integer/parseInt id)})
+    (where {:user_id (User/current-user-id)})))
 
 
 (defn update-destroy

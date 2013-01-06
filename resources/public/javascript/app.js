@@ -53,7 +53,7 @@ function editstuff(value, settings){
       url: '/cost/edit',
       async: false,
       dataType: 'json',
-      data: {'date': $(this).attr('data-date'), 'value': value, 'field': $(this).attr('data-field')},
+      data: {'id': $(this).parent().attr('data-cost-id'), 'value': value, 'field': $(this).attr('data-field')},
       success: function(data){
         result = data.value;
         $(that).attr('data-date', data.value);

@@ -78,22 +78,22 @@
   (cost-form tab))
 
 (defn cast-type
-  [param params f]
+  [param params f arg]
   (if (contains? params param)
-    (update-in params [param] (fn[x] f))
+    (update-in params [param] (fn[x] (f arg)))
     params))
   
 (defn cast-type-date
   [params]
-  (cast-type :date params (java.sql.Date/valueOf (:date params))))
+  (cast-type :date params #(java.sql.Date/valueOf %) (:date params)))
 
 (defn cast-type-unit
   [params]
-  (cast-type :unit params (Integer/parseInt (:unit params))))
+  (cast-type :unit params #(Integer/parseInt %) (:unit params)))
 
 (defn cast-type-cost
   [params]
-  (cast-type :cost params (Float/parseFloat (:cost params))))
+  (cast-type :cost params #(Float/parseFloat %) (:cost params)))
 
 (defn cast-types
   [params]
@@ -131,7 +131,7 @@
         ]
         [:tbody
           (for [cost (Stat/for-current-user)]
-            [:tr
+            [:tr {:data-cost-id (:id cost)}
              [:td {:class "edit-date" :data-date (:date cost) :data-field "date"} (:date cost)]
              [:td {:class "edit-type" :data-date (:date cost) :data-field "type"} (:type cost)]
              [:td {:class "edit" :data-date (:date cost) :data-field "unit"} (:unit cost)]
@@ -146,12 +146,17 @@
   )
 
 
+(defn format-edit
+  [params]
+  {(keyword (:field params)) (:value params)})
 
 (defpage-w-auth [:post "/cost/edit"] {:as new-cost}
     (let [user (User/current-user)]
       (if user
-        (println new-cost)
-              ;(response/json {:value (:value new-cost)})  )
+        (do
+          (Cost/update_ (cast-types (format-edit new-cost)) (:id new-cost))
+
+              (response/json {:value (:value new-cost)})  )
             (response/json {:value "error"})  ) ) ) 
         
 
