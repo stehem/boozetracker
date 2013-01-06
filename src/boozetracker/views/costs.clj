@@ -165,12 +165,10 @@
 (defpage-w-auth [:post "/cost/delete"] {:as cost}
     (let [user (User/current-user)]
       (if user
-        (let [updated-costs (Cost/update-destroy (:date cost))]
-          (if updated-costs
             (do
-              ;(update! :users {:_id (:_id user)} {:$set {:costs updated-costs}})
+              (Cost/update-destroy (:id cost))
               (response/json {:value "success"})  )
-            (response/json {:value "error"})  ) ) ) ) )
+            (response/json {:value "error"})  ) ) ) 
 
 
 

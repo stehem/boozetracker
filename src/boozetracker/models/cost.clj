@@ -37,5 +37,7 @@
 
 
 (defn update-destroy
-  [date]
-  (remove #(= (:date %) date) (Stat/for-current-user)))
+  [id]
+  (delete costs
+    (where {:id (Integer/parseInt id)})
+    (where {:user_id (User/current-user-id)})))

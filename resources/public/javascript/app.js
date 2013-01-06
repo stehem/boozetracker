@@ -30,7 +30,7 @@ $(function(){
         url: '/cost/delete',
         async: false,
         dataType: 'json',
-        data: {'date': $(this).attr('data-date')},
+        data: {'id': $(this).parent().attr('data-cost-id')},
         success: function(data){
           tr.hide();
         },

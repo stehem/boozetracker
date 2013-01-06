@@ -44,13 +44,21 @@
     (for [[type costs] grouped] (into [] [type (reduce + (map #(Float/parseFloat (:cost %)) costs))]))))
 
 
-
+(defn costs-grouped-by-type
+  []
+  (select costs
+    (fields :type (raw "SUM(cost)")) 
+    (where {:user_id (:id (User/current-user))}) 
+    (group :type)
+          )
+  
+)
   
   
 
 (defn pie-chart
   []
-  (grouped-by (group-by :type (for-current-user)  )))
+  (costs-grouped-by-type)  )
 
 
 (defn days-chart

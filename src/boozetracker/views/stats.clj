@@ -43,7 +43,7 @@
       data.addColumn('string', 'days');
       data.addColumn('number', 'cost');
       data.addRows("
-        (Stat/format-chart (Stat/days-chart))
+        ;(Stat/format-chart (Stat/days-chart))
       ");
       var options = {'title':'Spending by day',
       'backgroundColor': '#ffffff',
@@ -65,7 +65,7 @@
       data.addColumn('string', 'month');
       data.addColumn('number', 'cost');
       data.addRows("
-        (Stat/format-chart (Stat/sorted-spend-month))
+        ;(Stat/format-chart (Stat/sorted-spend-month))
       ");
       var options = {'title':'Spending by month',
       'backgroundColor': '#ffffff',
@@ -92,7 +92,7 @@
       data.addColumn('string', 'month');
       data.addColumn('number', 'cost');
       data.addRows("
-        (Stat/format-chart (Stat/sorted-spend-day))
+        ;(Stat/format-chart (Stat/sorted-spend-day))
       ");
       var options = {'title':'Spending by day',
       'backgroundColor': '#ffffff',
@@ -118,7 +118,7 @@
       data.addColumn('string', 'session');
       data.addColumn('number', 'average drink price');
       data.addRows("
-        (Stat/format-chart (Stat/avg-drinks-price-session))
+        ;(Stat/format-chart (Stat/avg-drinks-price-session))
       ");
       var options = {'title':'Average Drink Price',
       'backgroundColor': '#ffffff',
@@ -143,7 +143,9 @@
     (function (){
         var data = google.visualization.arrayToDataTable([
           ['Label', 'Value'],
-          ['Alcohol', "(Stat/gauge)"]
+          ['Alcohol', "
+            ;(Stat/gauge)
+            "]
         ]);
 
         var options = {
@@ -170,27 +172,39 @@
      [:div#recap
       [:dl {:class "dl-horizontal"}
        [:dt "Total Spend"]
-       [:dd (Stat/total-spend)] ]
+       [:dd 
+        ;(Stat/total-spend)
+        ] ]
      
       [:dl {:class "dl-horizontal"}
        [:dt "Average spend by month"]
-       [:dd (Stat/avg-spend-month)] ]
+       [:dd 
+        ;(Stat/avg-spend-month)
+        ] ]
 
       [:dl {:class "dl-horizontal"}
        [:dt "Average spend by day"]
-       [:dd (Stat/avg-spend-day)] ]
+       [:dd 
+        ;(Stat/avg-spend-day)
+        ] ]
 
       [:dl {:class "dl-horizontal"}
        [:dt "Average spend by session"]
-       [:dd (Stat/avg-spend-session)] ]
+       [:dd 
+        ;(Stat/avg-spend-session)
+        ] ]
 
       [:dl {:class "dl-horizontal"}
        [:dt "Average drinks number"]
-       [:dd (Stat/avg-drinks-nb)] ]
+       [:dd 
+        ;(Stat/avg-drinks-nb)
+        ] ]
 
       [:dl {:class "dl-horizontal"}
        [:dt "Average drinks price"]
-       [:dd (Stat/avg-drinks-price)] ]
+       [:dd 
+        ;(Stat/avg-drinks-price)
+        ] ]
       ]
       
       [:div#gauge
@@ -215,11 +229,11 @@
       function drawChart() {
       "
         (pie-chart)
-        (days-chart)
-        (month-chart)
-        (day-chart)
-        (avg-drink-price)
-        (recap-gauge)
+        ;(days-chart)
+        ;(month-chart)
+        ;(day-chart)
+        ;(avg-drink-price)
+        ;(recap-gauge)
       "
       }
     "
@@ -231,6 +245,7 @@
   (html
     (common/layout-w-auth 
       (do 
+        (println (Stat/pie-chart))
       [:div#stats
         [:script (google-charts-setup)]
         [:div
@@ -243,7 +258,9 @@
            [:li (link-to "#avg-drink-price-chart" "Average drink price")]
           ]
         ]
-          [:div#averages.chart (averages)]
+          [:div#averages.chart 
+           ;(averages)
+           ]
           [:div#pie-chart.chart]  
           [:div#days-chart.chart]  
           [:div#month-chart.chart]   
@@ -251,4 +268,5 @@
           [:div#avg-drink-price-chart.chart] 
       ] ) )))
 
-
+;FIX
+; pointSize: 10;
