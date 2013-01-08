@@ -31,8 +31,7 @@
 (defn for-current-user
   []
   (select costs
-    (where {:user_id (:id (User/current-user))}))
-   ) 
+    (where {:user_id (:id (User/current-user))}))) 
 
 (defn has-costs?
   []
@@ -49,28 +48,43 @@
   (select costs
     (fields :type (raw "SUM(cost)")) 
     (where {:user_id (:id (User/current-user))}) 
-    (group :type)
-          )
-  
-)
+    (group :type)))
   
   
+(defn to-js
+  [name value]
+  (format "['%s', %s]" name value))
+
+(defn join-with-commas
+  [seq]
+  (apply str (interpose \, seq)))
+
+(defn pie-chart-raw
+  [query col]
+  (map (fn[x] (to-js (col x) (:sum x))) query))
 
 (defn pie-chart
+  [query col]
+  (join-with-commas (pie-chart-raw query col)))
+
+(defn pie-chart-type
   []
-  (costs-grouped-by-type)  )
+  (pie-chart (costs-grouped-by-type) :type))
 
 
-(defn days-chart
+(defn costs-grouped-by-day
   []
-  (let [grouped
-    (group-by #(first %)
-      (map (fn[d] 
-             (let [[date cost] d] 
-               [(get week (day-of-week (to-cljdate date)) ) cost]))
-        (grouped-by (group-by :date (for-current-user)))  ))
-        ]
-    (into [] (for [[k v] grouped] [k (reduce + (map #(last %) v))]))  ))
+  (select costs
+    (fields (raw "to_char(date, 'Dy') AS day, SUM(cost)")) 
+    (where {:user_id (:id (User/current-user))}) 
+    (group (raw "day"))))
+
+
+
+(defn pie-chart-day
+  []
+  (pie-chart (costs-grouped-by-day) :day))
+
 
 
 (defn total-spend

@@ -20,9 +20,9 @@
       var data = new google.visualization.DataTable();
       data.addColumn('string', 'booze');
       data.addColumn('number', 'cost');
-      data.addRows("
-        (Stat/format-chart (Stat/pie-chart))
-      ");
+      data.addRows(["
+        (Stat/pie-chart-type)
+      "]);
       var options = {'title':'Spending by drink',
       'backgroundColor': '#ffffff',
       width: 600, 
@@ -42,9 +42,9 @@
       var data = new google.visualization.DataTable();
       data.addColumn('string', 'days');
       data.addColumn('number', 'cost');
-      data.addRows("
-        ;(Stat/format-chart (Stat/days-chart))
-      ");
+      data.addRows(["
+        (Stat/pie-chart-day)
+      "]);
       var options = {'title':'Spending by day',
       'backgroundColor': '#ffffff',
       width: 600, 
@@ -229,7 +229,7 @@
       function drawChart() {
       "
         (pie-chart)
-        ;(days-chart)
+        (days-chart)
         ;(month-chart)
         ;(day-chart)
         ;(avg-drink-price)
@@ -245,7 +245,7 @@
   (html
     (common/layout-w-auth 
       (do 
-        (println (Stat/pie-chart))
+        (println (Stat/costs-grouped-by-day))
       [:div#stats
         [:script (google-charts-setup)]
         [:div
