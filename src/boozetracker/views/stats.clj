@@ -21,13 +21,14 @@
       data.addColumn('string', 'booze');
       data.addColumn('number', 'cost');
       data.addRows(["
-        (Stat/pie-chart-type)
+        (Stat/chart-type)
       "]);
       var options = {'title':'Spending by drink',
       'backgroundColor': '#ffffff',
       width: 600, 
       height: 350,
-      is3D: true
+      is3D: true,
+      pieSliceText: 'none',
       };
       var chart = new google.visualization.PieChart(document.getElementById('pie-chart'));
       chart.draw(data, options);
@@ -49,7 +50,8 @@
       'backgroundColor': '#ffffff',
       width: 600, 
       height: 350,
-      is3D: true
+      is3D: true,
+      pieSliceText: 'none'
       };
       var chart = new google.visualization.PieChart(document.getElementById('days-chart'));
       chart.draw(data, options);
@@ -64,9 +66,9 @@
       var data = new google.visualization.DataTable();
       data.addColumn('string', 'month');
       data.addColumn('number', 'cost');
-      data.addRows("
-        ;(Stat/format-chart (Stat/sorted-spend-month))
-      ");
+      data.addRows(["
+        (Stat/column-chart-month)
+      "]);
       var options = {'title':'Spending by month',
       'backgroundColor': '#ffffff',
       width: 800, 
@@ -91,9 +93,9 @@
       var data = new google.visualization.DataTable();
       data.addColumn('string', 'month');
       data.addColumn('number', 'cost');
-      data.addRows("
-        ;(Stat/format-chart (Stat/sorted-spend-day))
-      ");
+      data.addRows(["
+        (Stat/line-chart-date)
+      "]);
       var options = {'title':'Spending by day',
       'backgroundColor': '#ffffff',
       'hAxis': {
@@ -230,8 +232,8 @@
       "
         (pie-chart)
         (days-chart)
-        ;(month-chart)
-        ;(day-chart)
+        (month-chart)
+        (day-chart)
         ;(avg-drink-price)
         ;(recap-gauge)
       "
@@ -245,7 +247,7 @@
   (html
     (common/layout-w-auth 
       (do 
-        (println (Stat/costs-grouped-by-day))
+        (println (Stat/line-chart-date))
       [:div#stats
         [:script (google-charts-setup)]
         [:div

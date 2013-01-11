@@ -5,7 +5,6 @@
   (:use [clj-time.core :exclude [extend]]
         [clj-time.format]
         [clj-time.coerce]
-
         [boozetracker.orm]
         ))
 
@@ -59,17 +58,17 @@
   [seq]
   (apply str (interpose \, seq)))
 
-(defn pie-chart-raw
+(defn chart-raw
   [query col]
-  (map (fn[x] (to-js (col x) (:sum x))) query))
+  (map (fn[x] (to-js (col x) (or (:sum x) (:cost x))  )) query))
 
-(defn pie-chart
+(defn chart
   [query col]
-  (join-with-commas (pie-chart-raw query col)))
+  (join-with-commas (chart-raw query col)))
 
-(defn pie-chart-type
+(defn chart-type
   []
-  (pie-chart (costs-grouped-by-type) :type))
+  (chart (costs-grouped-by-type) :type))
 
 
 (defn costs-grouped-by-day
@@ -80,11 +79,35 @@
     (group (raw "day"))))
 
 
+(defn costs-grouped-by-month
+  []
+  (select costs
+    (fields (raw "to_char(date, 'Mon') || to_char(date, 'YY') AS time, SUM(cost)")) 
+    (where {:user_id (:id (User/current-user))}) 
+    (group (raw "time"))))
+  
+
+(defn costs-grouped-by-date
+  []
+  (select costs
+    (fields (raw "to_char(date, 'DDD') AS date, cost")) 
+    (where {:user_id (:id (User/current-user))})
+    (order (raw "date") :ASC)))
+
 
 (defn pie-chart-day
   []
-  (pie-chart (costs-grouped-by-day) :day))
+  (chart (costs-grouped-by-day) :day))
 
+
+(defn column-chart-month
+  []
+  (chart (costs-grouped-by-month) :time))
+
+
+(defn line-chart-date
+  []
+  (chart (costs-grouped-by-date) :date))
 
 
 (defn total-spend
