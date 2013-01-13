@@ -17,7 +17,7 @@
 
 (defn username-free?
   [username]
-  (not (nil? (find-by-username username))))
+  (nil? (find-by-username username)))
 
 (defn create
   [user]

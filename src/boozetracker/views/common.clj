@@ -47,12 +47,14 @@
       ]
 
       [:div#content
-       (let [flash (session/flash-get)]
+        [:div {:class "clear"}]
+        [:div.container-fluid
+        (let [flash (session/flash-get)]
         (if flash
             [:div {:class "span8 alert alert-success" :id "flash"} flash]
             ))
+
         [:div {:class "clear"}]
-        [:div.container-fluid
           (if (and (User/current-user) (not= "/" (:uri (ring-request))))
           [:div#nav-top.navbar-inner
             [:div.navbar

@@ -7,7 +7,6 @@ form input {width: 80px}
   height: 60px;
   padding-top: 5px;
   padding-left: 5px;
-  border-top: 1px solid #BEBEBE;
   border-bottom: 1px solid #BEBEBE;
 }
 #logo-img{ float:left;}
@@ -144,7 +143,7 @@ footer a{
 }
 #flash{
   margin-top: 20px;
-  margin-left: 280px;
+  margin-left: 335px;
   margin-bottom: 20px;
-  width: 520px;
+  width: 490px;
 }

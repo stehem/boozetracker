@@ -78,6 +78,7 @@
         slantedText:true, 
         slantedTextAngle:45
       },
+      legend: 'none'
       };
       var chart = new google.visualization.ColumnChart(document.getElementById('month-chart'));
       chart.draw(data, options);
@@ -104,7 +105,9 @@
       },
       width: 800, 
       height: 350,
-      is3D: true
+      is3D: true,
+      legend: 'none',
+      pointSize: 10
       };
       var chart = new google.visualization.LineChart(document.getElementById('day-chart'));
       chart.draw(data, options);
@@ -131,7 +134,9 @@
       'hAxis': {
         slantedText:true, 
         slantedTextAngle:45
-      }
+      },
+      legend: 'none',
+      pointSize: 10
       };
       var chart = new google.visualization.LineChart(document.getElementById('avg-drink-price-chart'));
       chart.draw(data, options);
@@ -146,7 +151,7 @@
         var data = google.visualization.arrayToDataTable([
           ['Label', 'Value'],
           ['Alcohol', "
-            ;(Stat/gauge)
+            (Stat/gauge)
             "]
         ]);
 
@@ -181,31 +186,31 @@
       [:dl {:class "dl-horizontal"}
        [:dt "Average spend by month"]
        [:dd 
-        ;(Stat/avg-spend-month)
+        (Stat/average-spend-by-month)
         ] ]
 
       [:dl {:class "dl-horizontal"}
        [:dt "Average spend by day"]
        [:dd 
-        ;(Stat/avg-spend-day)
+        (Stat/average-spend-by-day)
         ] ]
 
       [:dl {:class "dl-horizontal"}
        [:dt "Average spend by session"]
        [:dd 
-        ;(Stat/avg-spend-session)
+        (Stat/average-spend-by-session)
         ] ]
 
       [:dl {:class "dl-horizontal"}
        [:dt "Average drinks number"]
        [:dd 
-        ;(Stat/avg-drinks-nb)
+        (Stat/average-number-of-drinks)
         ] ]
 
       [:dl {:class "dl-horizontal"}
        [:dt "Average drinks price"]
        [:dd 
-        ;(Stat/avg-drinks-price)
+        (Stat/average-drink-price)
         ] ]
       ]
       
@@ -235,7 +240,7 @@
         (month-chart)
         (day-chart)
         (avg-drink-price)
-        ;(recap-gauge)
+        (recap-gauge)
       "
       }
     "
@@ -247,7 +252,7 @@
   (html
     (common/layout-w-auth 
       (do 
-        (println (Stat/total-spend))
+        (println (Stat/number-of-days-between-now-and-first))
       [:div#stats
         [:script (google-charts-setup)]
         [:div
