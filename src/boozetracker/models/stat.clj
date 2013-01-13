@@ -95,6 +95,15 @@
     (order (raw "date") :ASC)))
 
 
+(defn average-cost-grouped-by-date
+  []
+  (select costs
+    (fields (raw "date_trunc('month', date) AS month, SUM(cost), to_char(date, 'Mon') || to_char(date, 'YY') AS time")) 
+    (where {:user_id (:id (User/current-user))})
+    (where (raw "cost IS NOT NULL"))
+    (group (raw "month, time"))
+    (order (raw "month") :ASC)))
+
 (defn pie-chart-day
   []
   (chart (costs-grouped-by-day) :day))
@@ -110,91 +119,22 @@
   (chart (costs-grouped-by-date) :date))
 
 
+(defn line-chart-average-costs
+  []
+  (chart (average-cost-grouped-by-date) :time))
+
+
+(defn total-spend-query
+  []
+  (select costs
+    (fields (raw "SUM(cost)"))
+    (where {:user_id (:id (User/current-user))})))
+
 (defn total-spend
   []
-  (reduce + (reduce (fn[xs x] (conj xs (Float/parseFloat (:cost x)))) [] (for-current-user))))
-
-
-(defn format-chart
-  [pie]
-  (format "[%s]" (clojure.string/join ", " (map (fn[p] (format "['%s', %s]" (first p) (second p))) pie))))
-    
-                       
-
-(defn spend-month
-  []
-  (grouped-by (group-by 
-                #(let [date (to-cljdate (:date %))] (format "%s-%s" (month date) (year date))) 
-                (for-current-user)  )))
+  (:sum (first (total-spend-query))))
 
   
-(defn spend-day
-  []
-  (grouped-by (group-by :date (for-current-user)  )))
-
-
-(defn avg-spend-month
-  []
-  (int (/ (total-spend) (count (spend-month)))) )
-
-
-(defn avg-spend-session
-  []
-  (int (/ (total-spend) (count (spend-day)))) )
-
-
-(defn sorted
-  [f frame]
-  (map #(into [] (butlast %))
-    (sort-by last (map #(conj % (to-long (f %))) frame)))  )
- 
-
-(defn sorted-spend-month
-  []
-  (sorted #(parse custom-formatter-r (first %)) (spend-month)))
-
-
-(defn sorted-spend-day
-  []
-  (sorted #(to-cljdate (first %)) (spend-day)))
-
-
-(defn min-date
-  []
-  (to-cljdate (ffirst (sorted-spend-day))))
-
-  
-(defn max-date
-  []
-  (to-cljdate (first (last (sorted-spend-day)))))
-
-
-(defn avg-spend-day
-  []
-  (let [days (in-days (interval (min-date) (max-date))) spend (total-spend)]
-    (int (/ spend (if (= 0 days) 1 days)))  ))
-
-
-(defn total-drinks
-  []
-  (reduce + (map #(Integer/parseInt (:unit %)) (for-current-user))))
-
-
-(defn avg-drinks-nb
-  []
-  (int (/ (total-drinks) (count (for-current-user)))) )
-
-
-(defn avg-drinks-price
-  []
-  (int (/ (total-spend) (total-drinks))) )
-
-
-(defn avg-drinks-price-session
-  []
-  (map 
-    (fn[s] [(:date s) (/ (Float/parseFloat (:cost s)) (Integer/parseInt (:unit s)))]) 
-    (for-current-user)))
 
 
 ;TODO gauge alcoholism level 

@@ -119,9 +119,9 @@
       var data = new google.visualization.DataTable();
       data.addColumn('string', 'session');
       data.addColumn('number', 'average drink price');
-      data.addRows("
-        ;(Stat/format-chart (Stat/avg-drinks-price-session))
-      ");
+      data.addRows(["
+        (Stat/line-chart-average-costs)
+      "]);
       var options = {'title':'Average Drink Price',
       'backgroundColor': '#ffffff',
       'hAxis': {'showTextEvery':3},
@@ -175,7 +175,7 @@
       [:dl {:class "dl-horizontal"}
        [:dt "Total Spend"]
        [:dd 
-        ;(Stat/total-spend)
+        (Stat/total-spend)
         ] ]
      
       [:dl {:class "dl-horizontal"}
@@ -234,7 +234,7 @@
         (days-chart)
         (month-chart)
         (day-chart)
-        ;(avg-drink-price)
+        (avg-drink-price)
         ;(recap-gauge)
       "
       }
@@ -247,7 +247,7 @@
   (html
     (common/layout-w-auth 
       (do 
-        (println (Stat/line-chart-date))
+        (println (Stat/total-spend))
       [:div#stats
         [:script (google-charts-setup)]
         [:div
@@ -261,7 +261,7 @@
           ]
         ]
           [:div#averages.chart 
-           ;(averages)
+           (averages)
            ]
           [:div#pie-chart.chart]  
           [:div#days-chart.chart]  
