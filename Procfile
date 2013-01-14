@@ -1,1 +1,1 @@
-web: lein run -m boozetracker.server $PORT  
+web: lein run   
