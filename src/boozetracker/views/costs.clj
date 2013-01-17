@@ -8,7 +8,6 @@
             [boozetracker.models.user :as User])
   (:use [noir.core]
         [boozetracker.utils]
-        [boozetracker.orm]
         [clj-time.core]
         [clj-time.format]
         [clj-time.coerce]
@@ -17,7 +16,6 @@
         [hiccup.core]))
 
 
-(use 'korma.core)
 
 (defpartial cost-form [tab]
    (html
@@ -93,7 +91,7 @@
 
 (defn cast-type-cost
   [params]
-  (cast-type :cost params #(Float/parseFloat %) (:cost params)))
+  (cast-type :cost params #(Float/parseFloat (clojure.string/replace % #"[^\d|.]" ""))  (:cost params)))
 
 (defn cast-types
   [params]
@@ -107,9 +105,8 @@
       (let [user (User/current-user)]
         (if user
           (do
-                (println cost)
-            (insert costs
-              (values (assoc (cast-types cost) :user_id (:id user))))
+            (db/insert 
+              :costs (assoc (cast-types cost) :user_id (:id user)))
             (response/redirect "/stats") )
           "with great failure"  ) )
     (render "/cost/new" cost) ) )
@@ -154,10 +151,12 @@
     (let [user (User/current-user)]
       (if user
         (do
-          (Cost/update_ (cast-types (format-edit new-cost)) (:id new-cost))
-
-              (response/json {:value (:value new-cost)})  )
-            (response/json {:value "error"})  ) ) ) 
+          (db/update 
+            :costs 
+            ["id = ? AND user_id = ?" (Integer/parseInt (:id new-cost)) (User/current-user-id)] 
+            (cast-types (format-edit new-cost)))
+          (response/json {:value (:value new-cost)})  )
+          (response/json {:value "error"})  ) ) ) 
         
 
 
@@ -166,7 +165,7 @@
     (let [user (User/current-user)]
       (if user
             (do
-              (Cost/update-destroy (:id cost))
+              (db/delete :costs ["id = ? AND user_id = ?" (Integer/parseInt (:id cost)) (User/current-user-id)])
               (response/json {:value "success"})  )
             (response/json {:value "error"})  ) ) ) 
 

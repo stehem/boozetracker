@@ -5,11 +5,9 @@
             [noir.util.crypt :as crypt]
             [noir.validation :as vali])
   (:use 
-    [boozetracker.orm]
         [boozetracker.utils]))
 
 
-(use 'korma.core)
 
 (defn valid? [{:keys [date type cost unit]}]
   (vali/rule (vali/has-value? date)
@@ -28,16 +26,14 @@
   (not (vali/errors? :date :type :cost :unit)))
 
 
-(defn update_
+(defn update
   [param id]
-  (update costs
-    (set-fields param)
-    (where {:id (Integer/parseInt id)})
-    (where {:user_id (User/current-user-id)})))
-
+  (db/update
+    :costs ["WHERE user_id = ? AND id = ?" (User/current-user-id) (Integer/parseInt id)] param))
+    
 
 (defn update-destroy
   [id]
-  (delete costs
-    (where {:id (Integer/parseInt id)})
-    (where {:user_id (User/current-user-id)})))
+  (db/delete
+    :costs ["WHERE user_id = ? AND id = ?" (User/current-user-id) (Integer/parseInt id)]))
+

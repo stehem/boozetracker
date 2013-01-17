@@ -5,16 +5,17 @@
   (:use [clj-time.core :exclude [extend]]
         [clj-time.format]
         [clj-time.coerce]
-        [boozetracker.orm]
         ))
 
-(use 'korma.core)
 
 
 (defn for-current-user
   []
-  (select costs
-    (where {:user_id (:id (User/current-user))}))) 
+  (db/fetch
+    ["SELECT *
+     FROM costs
+     WHERE user_id = ?" (User/current-user-id)]))
+
 
 (defn has-costs?
   []
@@ -22,11 +23,12 @@
 
 (defn costs-grouped-by-type
   []
-  (select costs
-    (fields :type (raw "SUM(cost)")) 
-    (where {:user_id (:id (User/current-user))}) 
-    (group :type)))
-  
+  (db/fetch
+    ["SELECT SUM(cost), type
+     FROM costs
+     WHERE user_id = ?
+     GROUP BY type" (User/current-user-id)]))
+
   
 (defn to-js
   [name value]
@@ -51,36 +53,41 @@
 
 (defn costs-grouped-by-day
   []
-  (select costs
-    (fields (raw "to_char(date, 'Dy') AS day, SUM(cost)")) 
-    (where {:user_id (:id (User/current-user))}) 
-    (group (raw "day"))))
+  (db/fetch
+    ["SELECT to_char(date, 'Dy') AS day, SUM(cost)
+     FROM costs
+     WHERE user_id = ?
+     GROUP BY day" (User/current-user-id)]))
 
 
 (defn costs-grouped-by-month
   []
-  (select costs
-    (fields (raw "to_char(date, 'Mon') || to_char(date, 'YY') AS time, SUM(cost)")) 
-    (where {:user_id (:id (User/current-user))}) 
-    (group (raw "time"))))
+  (db/fetch
+    ["SELECT to_char(date, 'Mon') || to_char(date, 'YY') AS time, SUM(cost)
+     FROM costs
+     WHERE user_id = ?
+     GROUP BY time" (User/current-user-id)]))
   
 
 (defn costs-grouped-by-date
   []
-  (select costs
-    (fields (raw "to_char(date, 'DDD') AS date, to_char(date, 'DD-MM-YY') AS time, cost")) 
-    (where {:user_id (:id (User/current-user))})
-    (order (raw "date") :ASC)))
+  (db/fetch
+    ["SELECT to_char(date, 'DDD') AS date, to_char(date, 'DD-MM-YY') AS time, cost
+     FROM costs
+     WHERE user_id = ?
+     ORDER BY date ASC" (User/current-user-id)]))
 
 
 (defn average-cost-grouped-by-date
   []
-  (select costs
-    (fields (raw "date_trunc('month', date) AS month, SUM(cost), to_char(date, 'DD-MM-YY') AS time")) 
-    (where {:user_id (:id (User/current-user))})
-    (where (raw "cost IS NOT NULL"))
-    (group (raw "month, time"))
-    (order (raw "month") :ASC)))
+  (db/fetch
+    ["SELECT date_trunc('month', date) AS month, SUM(cost), to_char(date, 'DD-MM-YY') AS time
+     FROM costs
+     WHERE user_id = ?
+     GROUP BY month, time
+     ORDER BY month ASC" (User/current-user-id)]))
+
+
 
 (defn pie-chart-day
   []
@@ -104,9 +111,11 @@
 
 (defn total-spend-query
   []
-  (select costs
-    (fields (raw "SUM(cost)"))
-    (where {:user_id (:id (User/current-user))})))
+  (db/fetch
+    ["SELECT SUM(cost)
+     FROM costs
+     WHERE user_id = ?" (User/current-user-id)]))
+
 
 (defn total-spend
   []
@@ -114,37 +123,41 @@
 
 
 (defn average-spend-by-month-query
-  ;WTF with Korma subselects?
   []
-  (format 
-    "SELECT AVG(sum)
-    FROM
-    (
-      SELECT date_trunc('month', date) AS month, SUM(cost)
-      FROM costs
-      WHERE cost IS NOT NULL
-      AND user_id = %s
-      GROUP BY date
-    ) AS sub " (User/current-user-id)))
+  (db/fetch
+    ["SELECT AVG(sum)
+      FROM
+      (
+        SELECT date_trunc('month', date) AS month, SUM(cost)
+        FROM costs
+        WHERE cost IS NOT NULL
+        AND user_id = ?
+        GROUP BY date
+      ) AS sub" (User/current-user-id)]))
   
 
 (defn average-spend-by-month
   []
-  (format "%.2f" (:avg (first (exec-raw [(average-spend-by-month-query)] :results)))))
+  (format "%.2f" (:avg (first (average-spend-by-month-query)))))
 
 
 (defn number-of-days-between-now-and-first-query
   []
-  (select costs
-    (fields (raw "DATE_PART('days', NOW() - date) AS days"))
-    (where {:user_id (:id (User/current-user))})
-    (group (raw "date"))
-    (order (raw "date") :ASC)
-    (limit 1)))
+  (db/fetch
+    ["SELECT DATE_PART('days', NOW() - date) AS days
+     FROM costs
+     WHERE user_id = ?
+     GROUP BY date
+     ORDER BY date ASC
+     LIMIT 1" (User/current-user-id)]))
 
-(defn number-of-days-between-now-and-first
+
+(defn ^:dynamic number-of-days-between-now-and-first
   []
-  (:days (first (number-of-days-between-now-and-first-query))))
+  (let [result (:days (first (number-of-days-between-now-and-first-query)))]
+    (if (= 0.0 result)
+      1
+      result)))
 
 (defn average-spend-by-day
   []
@@ -152,9 +165,10 @@
 
 (defn number-of-sessions-query
   []
-  (select costs
-    (fields (raw "COUNT(*)"))
-    (where {:user_id (:id (User/current-user))})))
+  (db/fetch
+    ["SELECT COUNT(*)
+     FROM costs
+     WHERE user_id = ?" (User/current-user-id)]))
 
 (defn number-of-sessions
   []
@@ -167,9 +181,10 @@
 
 (defn average-number-of-drinks-query
   []
-  (select costs
-    (fields (raw "AVG(unit) AS avg"))
-    (where {:user_id (:id (User/current-user))})))
+  (db/fetch
+    ["SELECT AVG(unit) AS avg
+     FROM costs
+     WHERE user_id = ?" (User/current-user-id)]))
 
 
 (defn average-number-of-drinks
@@ -178,18 +193,18 @@
 
 (defn average-drink-price-query
   []
-  (format 
-    "SELECT AVG(avg_cost_per_unit) AS price
-    FROM
-    (
-      SELECT (cost/unit) AS avg_cost_per_unit
-      FROM costs
-      WHERE user_id = %s
-    ) AS sub " (User/current-user-id)))
+  (db/fetch
+    ["SELECT AVG(avg_cost_per_unit) AS price
+      FROM
+      (
+        SELECT (cost/unit) AS avg_cost_per_unit
+        FROM costs
+        WHERE user_id = ?
+      ) AS sub" (User/current-user-id)]))
 
 (defn average-drink-price
   []
-  (format "%.2f" (:price (first (exec-raw [(average-drink-price-query)] :results)))))
+  (format "%.2f" (:price (first (average-drink-price-query)))))
   
 
 ;TODO gauge alcoholism level 

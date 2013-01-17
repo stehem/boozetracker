@@ -4,16 +4,17 @@
             [noir.session :as session]
             [noir.validation :as vali])
 
-   (:use [boozetracker.orm])
   )
 
-(use 'korma.core)
 
 (defn find-by-username
   [username]
   (first
-    (select users
-      (where {:username username}))))
+    (db/fetch
+      ["SELECT *
+      FROM users
+      WHERE username = ?" username])))
+    
 
 (defn username-free?
   [username]
@@ -21,19 +22,18 @@
 
 (defn create
   [user]
-  (insert users
-    (values {:username (:username user) :password (crypt/encrypt (:password user))})))
-
-(defn destroy
-  [username]
-  )
+  (db/insert
+    :users {:username (:username user) :password (crypt/encrypt (:password user))}))
 
 
 (defn ^:dynamic current-user
   []
   (first
-    (select users
-      (where {:id (session/get :user-id)}))))
+    (db/fetch
+      ["SELECT *
+      FROM users
+      WHERE id = ?" (session/get :user-id)])))
+    
 
 (defn current-user-id
   []
