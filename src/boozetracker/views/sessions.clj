@@ -18,6 +18,12 @@
   (html
     (common/layout-w-auth 
     [:div#user-form.bt-form
+
+        (let [flash (session/flash-get)]
+        (if flash
+            [:div {:class "span8 alert alert-success" :id "flash"} flash]
+            ))
+        [:div {:class "clear"}]
       (form-to {:class "form-horizontal"} [:post "/sessions"]
         [:legend "Login"]
 

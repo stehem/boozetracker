@@ -49,10 +49,6 @@
       [:div#content
         [:div {:class "clear"}]
         [:div.container-fluid
-        (let [flash (session/flash-get)]
-        (if flash
-            [:div {:class "span8 alert alert-success" :id "flash"} flash]
-            ))
 
         [:div {:class "clear"}]
           (if (and (User/current-user) (not= "/" (:uri (ring-request))))
@@ -68,6 +64,7 @@
             ] ]
           )
           [:div#wrapper
+
             content
           ]
         ] 

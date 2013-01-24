@@ -143,7 +143,6 @@ footer a{
 }
 #flash{
   margin-top: 20px;
-  margin-left: 335px;
-  margin-bottom: 20px;
-  width: 490px;
+  margin: auto;
+  width: 450px;
 }
