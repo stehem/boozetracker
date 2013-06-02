@@ -1,17 +1,5 @@
 # boozetracker
 
-A website written in noir. 
-
-## Usage
-
-```bash
-lein deps
-lein run
-```
-
-## License
-
-Copyright (C) 2011 FIXME
-
-Distributed under the Eclipse Public License, the same as Clojure.
+Track your booze spending, Clojure goodness.
+http://www.boozetracker.net/
 
